@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="@string/settings_notifications">
+    <PreferenceCategory android:title="@string/settings_battery_save">
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="overlay"
+            android:summary="@string/settings_overlay_desc"
+            android:title="@string/settings_overlay" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:dependency="overlay"
+            android:key="dim"
+            android:summary="@string/settings_dim_desc"
+            android:title="@string/settings_dim" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="battery_saver"
+            android:summary="@string/settings_battery_saver_desc"
+            android:title="@string/settings_battery_saver" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/settings_enhancements">
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="keep_awake"
+            android:summary="@string/settings_keep_screen_on_desc"
+            android:title="@string/settings_keep_screen_on" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/settings_notifications">
+        <Preference
+            android:key="notification"
+            android:summary="@string/settings_notifications_desc"
+            android:title="@string/settings_notifications"/>
+    </PreferenceCategory>
+</PreferenceScreen>
