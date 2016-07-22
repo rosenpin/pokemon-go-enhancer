@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <style name="InstinctTheme" parent="AppTheme">
+        <item name="colorPrimary">@color/colorPrimaryYellow</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkYellow</item>
+        <item name="colorAccent">@color/colorPrimaryDarkYellow</item>
+        <item name="android:navigationBarColor">@color/colorPrimaryYellow</item>
+    </style>
+
     <style name="ValorTheme" parent="AppTheme">
         <item name="colorPrimary">@color/colorPrimaryRed</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDarkRed</item>
