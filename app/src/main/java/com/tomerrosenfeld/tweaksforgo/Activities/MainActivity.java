@@ -11,10 +11,13 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
-import com.tomerrosenfeld.tweaksforgo.Services.MainService;
 import com.tomerrosenfeld.tweaksforgo.Prefs;
 import com.tomerrosenfeld.tweaksforgo.R;
+import com.tomerrosenfeld.tweaksforgo.Services.MainService;
 import com.tomerrosenfeld.tweaksforgo.SettingsFragment;
 
 public class MainActivity extends AppCompatActivity {
@@ -30,12 +33,21 @@ public class MainActivity extends AppCompatActivity {
             finish();
         } else {
             //Actual oncreate
-            setTheme(prefs.getInt(Prefs.theme, prefs.getInt(Prefs.theme, R.style.AppTheme)));
+            applyTheme();
             setContentView(R.layout.activity_main);
             getFragmentManager().beginTransaction()
                     .replace(R.id.preferences_holder, new SettingsFragment())
                     .commit();
             startService(new Intent(getApplicationContext(), MainService.class));
+        }
+    }
+
+    private void applyTheme() {
+        try {
+            setTheme(prefs.getInt(Prefs.theme, prefs.getInt(Prefs.theme, R.style.AppTheme)));
+        } catch (Exception e) {
+            startActivity(new Intent(this, TeamPicker.class));
+            finish();
         }
     }
 
@@ -78,6 +90,24 @@ public class MainActivity extends AppCompatActivity {
                 }, true, "access usage");
             }
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_change_team:
+                startActivity(new Intent(getApplicationContext(), TeamPicker.class));
+                finish();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

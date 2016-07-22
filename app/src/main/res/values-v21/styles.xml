@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="ValorTheme" parent="AppTheme">
+        <item name="colorPrimary">@color/colorPrimaryRed</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkRed</item>
+        <item name="colorAccent">@color/colorPrimaryRed</item>
+        <item name="android:navigationBarColor">@color/colorPrimaryRed</item>
+    </style>
+
+    <style name="MysticTheme" parent="AppTheme">
+        <item name="colorPrimary">@color/colorPrimaryBlue</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkBlue</item>
+        <item name="colorAccent">@color/colorPrimaryBlue</item>
+        <item name="android:navigationBarColor">@color/colorPrimaryBlue</item>
+    </style>
+</resources>

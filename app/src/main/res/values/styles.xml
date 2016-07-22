@@ -20,13 +20,13 @@
     <style name="MysticTheme" parent="AppTheme">
         <item name="colorPrimary">@color/colorPrimaryBlue</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDarkBlue</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorAccent">@color/colorPrimaryBlue</item>
     </style>
 
     <style name="ValorTheme" parent="AppTheme">
         <item name="colorPrimary">@color/colorPrimaryRed</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDarkRed</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorAccent">@color/colorPrimaryRed</item>
     </style>
 
     <style name="InstinctTheme" parent="AppTheme.LightActionBar">
