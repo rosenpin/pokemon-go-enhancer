@@ -21,6 +21,6 @@
     <string name="settings_proximity_sensor_desc">Use the proximity sensor to detect if overlay will be shown</string>
     <string name="settings_keep_screen_on_desc">Keep the screen on while you are playing the game</string>
     <string name="settings_battery_saver_desc">Start battery saver automatically when the game starts (requires root)</string>
-    <string name="settings_kill_background_processes_desc">Kill background processes when the Pokemon GO is launched to save battery and improve the apps performance (Recommended for devices with less than 2GB of ram)</string>
+    <string name="settings_kill_background_processes_desc">Kill background processes when the game is launched to save battery and improve the apps performance (Recommended for devices with less than 2GB of ram)</string>
     <string name="menu_change_team">Change team</string>
 </resources>
