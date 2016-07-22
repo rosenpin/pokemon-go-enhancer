@@ -25,6 +25,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.RelativeLayout;
 
 import com.android.vending.billing.IInAppBillingService;
 import com.tomerrosenfeld.tweaksforgo.ContextUtils;
@@ -34,6 +35,8 @@ import com.tomerrosenfeld.tweaksforgo.R;
 import com.tomerrosenfeld.tweaksforgo.SecretConstants;
 import com.tomerrosenfeld.tweaksforgo.Services.MainService;
 import com.tomerrosenfeld.tweaksforgo.SettingsFragment;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     Prefs prefs;
@@ -48,7 +51,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mService = IInAppBillingService.Stub.asInterface(service);
-            setUpDonateButton();
+            ArrayList<String> ownedItems = null;
+            try {
+                ownedItems = mService.getPurchases(3, getPackageName(), "inapp", null).getStringArrayList("INAPP_PURCHASE_ITEM_LIST");
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+            setUpDonateButton(ownedItems != null);
         }
     };
 
@@ -74,9 +83,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void setUpDonateButton() {
+    private void setUpDonateButton(boolean hide) {
+        if (hide){
+            ((RelativeLayout)findViewById(R.id.wrapper)).removeView(findViewById(R.id.donate));
+            return;
+        }
         TypedValue typedValue = new TypedValue();
-        getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValue, true);
+        getTheme().resolveAttribute(R.attr.colorPrimary, typedValue, true);
         int color = typedValue.data;
         findViewById(R.id.donate).setEnabled(true);
         findViewById(R.id.donate).setBackgroundColor(color);

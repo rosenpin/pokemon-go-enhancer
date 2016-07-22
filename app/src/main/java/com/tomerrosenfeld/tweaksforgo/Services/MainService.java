@@ -80,7 +80,7 @@ public class MainService extends Service {
 
     private void checkIfGoIsCurrentApp() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            final long INTERVAL = 2000;
+            final long INTERVAL = 1000;
             final long end = System.currentTimeMillis();
             final long begin = end - INTERVAL;
             UsageStatsManager manager = (UsageStatsManager) getSystemService(USAGE_STATS_SERVICE);
