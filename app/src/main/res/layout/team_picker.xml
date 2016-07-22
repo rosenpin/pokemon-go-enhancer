@@ -7,7 +7,7 @@
     android:orientation="vertical">
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
         android:layout_marginRight="@dimen/activity_horizontal_margin"
@@ -30,11 +30,16 @@
             android:layout_weight="1"
             android:foreground="?android:attr/selectableItemBackground">
 
-            <ImageView
+            <TextView
+                android:typeface="monospace"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:padding="@dimen/activity_horizontal_margin"
-                android:src="@drawable/mystic" />
+                android:background="@color/colorPrimaryBlue"
+                android:gravity="center"
+                style="@style/TextAppearance.AppCompat.Headline"
+                android:text="Instinct"
+                android:textColor="@android:color/white"
+                android:textSize="72sp" />
         </android.support.v7.widget.CardView>
 
         <android.support.v7.widget.CardView
@@ -45,11 +50,16 @@
             android:layout_weight="1"
             android:foreground="?android:attr/selectableItemBackground">
 
-            <ImageView
+            <TextView
+                android:typeface="monospace"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:padding="@dimen/activity_horizontal_margin"
-                android:src="@drawable/valor" />
+                android:background="@color/colorPrimaryRed"
+                style="@style/TextAppearance.AppCompat.Headline"
+                android:gravity="center"
+                android:text="VALOR"
+                android:textColor="@android:color/white"
+                android:textSize="72sp" />
         </android.support.v7.widget.CardView>
 
         <android.support.v7.widget.CardView
@@ -60,11 +70,16 @@
             android:layout_weight="1"
             android:foreground="?android:attr/selectableItemBackground">
 
-            <ImageView
+            <TextView
+                android:typeface="monospace"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:padding="@dimen/activity_horizontal_margin"
-                android:src="@drawable/instinct" />
+                style="@style/TextAppearance.AppCompat.Headline"
+                android:background="@color/colorPrimaryYellow"
+                android:gravity="center"
+                android:text="INSTINCT"
+                android:textColor="@android:color/white"
+                android:textSize="72sp" />
         </android.support.v7.widget.CardView>
     </LinearLayout>
 
@@ -74,11 +89,11 @@
         android:layout_weight="0.5">
 
         <Button
+            android:id="@+id/skip"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_alignParentEnd="true"
             android:gravity="center"
-            android:id="@+id/skip"
             android:text="@string/intro_skip"
             android:textAllCaps="true"
             android:theme="@style/AppTheme.FlatButton" />
