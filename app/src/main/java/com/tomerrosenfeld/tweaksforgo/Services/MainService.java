@@ -141,6 +141,7 @@ public class MainService extends Service {
 
     private void GOClosed() {
         Log.d(MainService.class.getSimpleName(), "GO closed");
+        unregisterAccelerator();
         if (prefs.getBoolean(Prefs.batterySaver, false))
             setBatterySaver(false);
         if (wl.isHeld())
@@ -149,7 +150,6 @@ public class MainService extends Service {
             extremeBatterySaver(false);
         if (prefs.getBoolean(Prefs.maximize_brightness, false))
             maximizeBrightness(false);
-        unregisterAccelerator();
 
         setNotification(false);
         isGoOpen = false;
