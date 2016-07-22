@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginTop="@dimen/activity_horizontal_margin"
@@ -28,18 +29,19 @@
             android:layout_height="0dp"
             android:layout_marginBottom="@dimen/activity_horizontal_margin"
             android:layout_weight="1"
-            android:foreground="?android:attr/selectableItemBackground">
+            android:foreground="?android:attr/selectableItemBackground"
+            app:cardBackgroundColor="@color/colorPrimaryBlue">
 
             <TextView
-                android:typeface="monospace"
+                android:id="@+id/title_blue"
+                style="@style/TextAppearance.AppCompat.Headline"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/colorPrimaryBlue"
                 android:gravity="center"
-                style="@style/TextAppearance.AppCompat.Headline"
-                android:text="Instinct"
-                android:textColor="@android:color/white"
-                android:textSize="72sp" />
+                android:text="Mystic"
+                android:textColor="@android:color/secondary_text_light"
+                android:textSize="@dimen/team_text_size"
+                android:typeface="monospace" />
         </android.support.v7.widget.CardView>
 
         <android.support.v7.widget.CardView
@@ -48,18 +50,18 @@
             android:layout_height="0dp"
             android:layout_marginBottom="@dimen/activity_horizontal_margin"
             android:layout_weight="1"
-            android:foreground="?android:attr/selectableItemBackground">
+            android:foreground="?android:attr/selectableItemBackground"
+            app:cardBackgroundColor="@color/colorPrimaryRed">
 
             <TextView
-                android:typeface="monospace"
+                android:id="@+id/title_red"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/colorPrimaryRed"
-                style="@style/TextAppearance.AppCompat.Headline"
                 android:gravity="center"
                 android:text="VALOR"
-                android:textColor="@android:color/white"
-                android:textSize="72sp" />
+                android:textColor="@android:color/secondary_text_light"
+                android:textSize="@dimen/team_text_size"
+                android:typeface="monospace" />
         </android.support.v7.widget.CardView>
 
         <android.support.v7.widget.CardView
@@ -68,32 +70,35 @@
             android:layout_height="0dp"
             android:layout_marginBottom="@dimen/activity_horizontal_margin"
             android:layout_weight="1"
-            android:foreground="?android:attr/selectableItemBackground">
+            android:foreground="?android:attr/selectableItemBackground"
+            app:cardBackgroundColor="@color/colorPrimaryYellow">
 
             <TextView
-                android:typeface="monospace"
+                android:id="@+id/title_yellow"
+                style="@style/TextAppearance.AppCompat.Headline"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                style="@style/TextAppearance.AppCompat.Headline"
-                android:background="@color/colorPrimaryYellow"
                 android:gravity="center"
                 android:text="INSTINCT"
-                android:textColor="@android:color/white"
-                android:textSize="72sp" />
+                android:textColor="@android:color/secondary_text_light"
+                android:textSize="@dimen/team_text_size"
+                android:typeface="monospace" />
         </android.support.v7.widget.CardView>
     </LinearLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.5">
+        android:gravity="center_vertical"
+        android:layout_weight="0.3">
 
         <Button
             android:id="@+id/skip"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:gravity="center"
+            android:textColor="#009688"
             android:text="@string/intro_skip"
             android:textAllCaps="true"
             android:theme="@style/AppTheme.FlatButton" />
