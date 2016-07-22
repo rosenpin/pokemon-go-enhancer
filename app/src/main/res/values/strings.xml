@@ -19,6 +19,7 @@
     <string name="settings_battery_saver">Battery saver</string>
     <string name="settings_kill_background_processes">Kill background processes</string>
     <string name="settings_extreme_battery_saver">Extreme battery saver</string>
+    <string name="settings_maximize_brightness">Maximize brightness</string>
     <!--Settings Descriptions-->
     <string name="settings_notifications_desc">Get notifications about new Pokemon around you. Click here to configure the notifications</string>
     <string name="settings_overlay_desc">Overlay screen with a black view to save battery and disable touches. Recommended for devices with AMOLED screens.</string>
@@ -28,4 +29,5 @@
     <string name="settings_battery_saver_desc">Start battery saver automatically when the game starts (requires root)</string>
     <string name="settings_kill_background_processes_desc">Kill background processes when the game is launched to save battery and improve the apps performance (Recommended for devices with less than 2GB of ram)</string>
     <string name="settings_extreme_battery_saver_desc">Change location mode to battery saving to reduce battery consumption. This can cause lag in the game (requires root)</string>
+    <string name="settings_maximize_brightness_desc">Maximize the screen brightness when the game start for better outdoor visibility</string>
 </resources>
