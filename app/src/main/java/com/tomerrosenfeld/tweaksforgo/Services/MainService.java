@@ -202,7 +202,7 @@ public class MainService extends Service {
     private void setBatterySaver(boolean status) {
         try {
             if (!isConnected()) {
-                Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", "settings put global low_power" + (status ? 1 : 0)});
+                Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", "settings put global low_power " + (status ? 1 : 0)});
                 process.waitFor();
             }
         } catch (IOException | InterruptedException e) {
