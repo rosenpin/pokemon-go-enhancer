@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Enhancer for GO</string>
+    <!--Actions-->
+    <string name="action_support_the_development">Support the development</string>
     <!--Menu-->
     <string name="menu_change_team">Change team</string>
     <!--Intro-->

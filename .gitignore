@@ -41,3 +41,6 @@ captures/
 
 #idea
 .idea
+app/libs/
+app/src/main/assets/secretconstants.properties
+

@@ -2,29 +2,51 @@ package com.tomerrosenfeld.tweaksforgo.Activities;
 
 import android.app.Activity;
 import android.app.AppOpsManager;
+import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
+import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 
+import com.android.vending.billing.IInAppBillingService;
 import com.tomerrosenfeld.tweaksforgo.Prefs;
 import com.tomerrosenfeld.tweaksforgo.R;
+import com.tomerrosenfeld.tweaksforgo.SecretConstants;
 import com.tomerrosenfeld.tweaksforgo.Services.MainService;
 import com.tomerrosenfeld.tweaksforgo.SettingsFragment;
 
-import java.io.IOException;
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     Prefs prefs;
+    private IInAppBillingService mService;
+
+    ServiceConnection mServiceConn = new ServiceConnection() {
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mService = null;
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mService = IInAppBillingService.Stub.asInterface(service);
+            setUpDonateButton();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +64,20 @@ public class MainActivity extends AppCompatActivity {
                     .replace(R.id.preferences_holder, new SettingsFragment())
                     .commit();
             startService(new Intent(getApplicationContext(), MainService.class));
+            //Set up IAP
+            Intent billingServiceIntent = new Intent("com.android.vending.billing.InAppBillingService.BIND");
+            billingServiceIntent.setPackage("com.android.vending");
+            bindService(billingServiceIntent, mServiceConn, Context.BIND_AUTO_CREATE);
         }
+    }
+
+    private void setUpDonateButton() {
+        TypedValue typedValue = new TypedValue();
+        getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValue, true);
+        int color = typedValue.data;
+        findViewById(R.id.donate).setEnabled(true);
+        findViewById(R.id.donate).setBackgroundColor(color);
+        findViewById(R.id.donate).setOnClickListener(this);
     }
 
 
@@ -50,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             setTheme(prefs.getInt(Prefs.theme, prefs.getInt(Prefs.theme, R.style.AppTheme)));
         } catch (Exception e) {
+            e.printStackTrace();
             startActivity(new Intent(this, TeamPicker.class));
             finish();
         }
@@ -118,5 +154,26 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         handleUsageAccessPermission();
+    }
+
+    @Override
+    public void onClick(View view) {
+        if (view.getId() == R.id.donate) {
+            try {
+                Bundle buyIntentBundle = mService.getBuyIntent(3, getPackageName(),
+                        SecretConstants.getPropertyValue(getApplicationContext(), "IAPID"), "inapp", SecretConstants.getPropertyValue(getApplicationContext(), "googleIAPCode"));
+                PendingIntent pendingIntent = buyIntentBundle.getParcelable("BUY_INTENT");
+                assert pendingIntent != null;
+                startIntentSenderForResult(pendingIntent.getIntentSender(), 1001, new Intent(), 0, 0, 0);
+            } catch (IntentSender.SendIntentException | RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d(MainActivity.class.getSimpleName(), "Purchase");
     }
 }

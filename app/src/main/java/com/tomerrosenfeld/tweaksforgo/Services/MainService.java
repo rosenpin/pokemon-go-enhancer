@@ -41,11 +41,12 @@ public class MainService extends Service {
     private WindowManager windowManager;
     private LinearLayout black;
     private WindowManager.LayoutParams windowParams;
-    private int originalBrightness;
     private SensorManager sensorManager;
     private ScreenReceiver screenReceiver;
     private IntentFilter filter;
+    private int originalBrightness;
     private int originalLocationMode;
+    private int originalBrightnessMode;
 
     @Nullable
     @Override
@@ -57,13 +58,24 @@ public class MainService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(MainService.class.getSimpleName(), "Main service started");
-        wl = ((PowerManager) getSystemService(Context.POWER_SERVICE)).newWakeLock(PowerManager.FULL_WAKE_LOCK, "Tweaks For GO Tag");
         prefs = new Prefs(this);
-        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        originalBrightness = Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, 100);
-        checkIfGoIsCurrentApp();
+        initOriginalStates();
         initAccelerometer();
+        initScreenHolder();
         initScreenReceiver();
+        checkIfGoIsCurrentApp();
+    }
+
+    private void initOriginalStates() {
+        if (prefs.getBoolean(Prefs.dim, false) || prefs.getBoolean(Prefs.maximize_brightness, false)) {
+            originalBrightness = Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, 100);
+            originalBrightnessMode = Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE, Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC);
+        }
+    }
+
+    private void initScreenHolder() {
+        if (prefs.getBoolean(Prefs.keepAwake, true))
+            wl = ((PowerManager) getSystemService(Context.POWER_SERVICE)).newWakeLock(PowerManager.FULL_WAKE_LOCK, "Tweaks For GO Tag");
     }
 
     private void checkIfGoIsCurrentApp() {
@@ -116,9 +128,12 @@ public class MainService extends Service {
             registerAccelerometer();
         if (prefs.getBoolean(Prefs.kill_background_processes, false))
             killBackgroundProcesses();
-        originalLocationMode = Settings.Secure.getInt(getContentResolver(), Settings.Secure.LOCATION_MODE, 0);
-        if (prefs.getBoolean(Prefs.extreme_battery_saver, false))
+        if (prefs.getBoolean(Prefs.extreme_battery_saver, false)) {
+            originalLocationMode = Settings.Secure.getInt(getContentResolver(), Settings.Secure.LOCATION_MODE, 0);
             extremeBatterySaver(true);
+        }
+        if (prefs.getBoolean(Prefs.maximize_brightness, false))
+            maximizeBrightness(true);
 
         setNotification(true);
         isGoOpen = true;
@@ -132,6 +147,8 @@ public class MainService extends Service {
             wl.release();
         if (prefs.getBoolean(Prefs.extreme_battery_saver, false) && originalLocationMode != 2)
             extremeBatterySaver(false);
+        if (prefs.getBoolean(Prefs.maximize_brightness, false))
+            maximizeBrightness(false);
         unregisterAccelerator();
 
         setNotification(false);
@@ -152,13 +169,16 @@ public class MainService extends Service {
     }
 
     private void initAccelerometer() {
-        windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        black = new LinearLayout(getApplicationContext());
-        black.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        black.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), android.R.color.black));
-        Globals.blackLayout = black;
-        windowParams = new WindowManager.LayoutParams(-1, -1, 2003, 65794, -2);
-        windowParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
+        if (prefs.getBoolean(Prefs.overlay, false) || prefs.getBoolean(Prefs.overlay, false)) {
+            sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+            windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+            black = new LinearLayout(getApplicationContext());
+            black.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            black.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), android.R.color.black));
+            Globals.blackLayout = black;
+            windowParams = new WindowManager.LayoutParams(-1, -1, 2003, 65794, -2);
+            windowParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
+        }
     }
 
     private void registerAccelerometer() {
@@ -212,7 +232,35 @@ public class MainService extends Service {
         }
     }
 
-    private void setNotification(boolean state){
+    private void maximizeBrightness(boolean state) {
+        Log.d(MainService.class.getSimpleName(), "Changing screen brightness");
+        Settings.System.putInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE, state ? Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL : originalBrightnessMode);
+        Settings.System.putInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, state ? 255 : originalBrightness);
+    }
+
+    private void darkenTheScreen(boolean state) {
+        if (state && isGoOpen) {
+            windowManager.addView(black, windowParams);
+            registerReceiver(screenReceiver, filter);
+        } else {
+            try {
+                windowManager.removeView(black);
+                unregisterScreenReceiver();
+            } catch (Exception ignored) {
+                Log.d("Receiver", "View is not attached");
+            }
+        }
+    }
+
+    private void dimScreen(boolean state){
+        if (prefs.getBoolean(Prefs.dim, false)) {
+            Log.d("Original brightness is ", String.valueOf(originalBrightness));
+            Settings.System.putInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE, state ? Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL : originalBrightnessMode);
+            Settings.System.putInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, state ? 0 : originalBrightness);
+        }
+    }
+
+    private void setNotification(boolean state) {
         try {
             Intent i = new Intent();
             i.setComponent(new ComponentName("com.tomer.poke.notifier", "com.tomer.poke.notifier.Services.MainService"));
@@ -220,8 +268,8 @@ public class MainService extends Service {
                 startService(i);
             else
                 stopService(i);
-        }catch (Exception ignored){
-            Log.d(MainService.class.getSimpleName(),"Notifications for GO is not installed");
+        } catch (Exception ignored) {
+            Log.d(MainService.class.getSimpleName(), "Notifications for GO is not installed");
         }
     }
 
@@ -247,27 +295,14 @@ public class MainService extends Service {
                 if (!isBlack) {
                     isBlack = true;
                     darkenTheScreen(true);
+                    dimScreen(true);
                 }
             } else if (isBlack) {
                 isBlack = false;
                 darkenTheScreen(false);
+                dimScreen(false);
             }
         }
     };
 
-    private void darkenTheScreen(boolean state) {
-        if (state && isGoOpen) {
-            windowManager.addView(black, windowParams);
-            registerReceiver(screenReceiver, filter);
-        } else {
-            try {
-                windowManager.removeView(black);
-                unregisterScreenReceiver();
-            } catch (Exception ignored) {
-                Log.d("Receiver", "View is not attached");
-            }
-        }
-        if (prefs.getBoolean(Prefs.dim, false))
-            Settings.System.putInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, state ? 0 : originalBrightness);
-    }
 }
