@@ -67,7 +67,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             getFragmentManager().beginTransaction()
                     .replace(R.id.preferences_holder, new SettingsFragment())
                     .commit();
-            startService(new Intent(getApplicationContext(), MainService.class));
             //Set up IAP
             Intent billingServiceIntent = new Intent("com.android.vending.billing.InAppBillingService.BIND");
             billingServiceIntent.setPackage("com.android.vending");

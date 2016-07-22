@@ -29,6 +29,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
     boolean shouldAllowOverlay;
     boolean shouldAllowDim;
     private boolean shouldAllowMaximizeBrightness;
+    private Intent mainServiceIntent;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -40,6 +41,8 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         findPreference("dim").setOnPreferenceChangeListener(this);
         findPreference("extreme_battery_saver").setOnPreferenceChangeListener(this);
         findPreference("maximize_brightness").setOnPreferenceChangeListener(this);
+        mainServiceIntent = new Intent(getActivity(), MainService.class);
+        getActivity().startService(new Intent(getActivity(), MainService.class));
     }
 
     @Override
@@ -157,14 +160,19 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         }
     }
 
+    private void restartService() {
+        getActivity().stopService(new Intent(getActivity(), MainService.class));
+        getActivity().startService(new Intent(getActivity(), MainService.class));
+    }
+
     @Override
     public boolean onPreferenceChange(Preference preference, Object o) {
-        if (preference.getKey().equals("battery_saver"))
-            if (Shell.SU.available()) {
-                return true;
-            }
-            else
+        if (preference.getKey().equals("battery_saver")) {
+            if (!Shell.SU.available()) {
                 Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.warning_1_root, Snackbar.LENGTH_LONG).show();
+                return false;
+            }
+        }
         if (preference.getKey().equals("overlay")) {
             if (!hasDrawingPermission()) {
                 MainActivity.askForPermission(getActivity(), new DialogInterface.OnClickListener() {
@@ -178,8 +186,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                         }
                     }
                 }, false, "show a black screen over other apps");
-            } else {
-                return true;
+                return false;
             }
         }
         if (preference.getKey().equals("dim")) {
@@ -195,32 +202,27 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                         }
                     }
                 }, false, "change system settings");
-            } else {
-                return true;
+                return false;
             }
         }
         if (preference.getKey().equals("extreme_battery_saver")) {
-            if (hasModifySecurePermission()) {
-                return true;
-            }
-            try {
-                Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", "pm grant " + getActivity().getPackageName() + " android.permission.WRITE_SECURE_SETTINGS"});
-                process.waitFor();
-                return true;
-            } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
-                Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.warning_1_root, Snackbar.LENGTH_LONG).setAction(R.string.root_workaround, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        noSecureSettingsPermissionPrompt();
-                    }
-                }).show();
+            if (!hasModifySecurePermission()) {
+                try {
+                    Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", "pm grant " + getActivity().getPackageName() + " android.permission.WRITE_SECURE_SETTINGS"});
+                    process.waitFor();
+                } catch (IOException | InterruptedException e) {
+                    Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.warning_1_root, Snackbar.LENGTH_LONG).setAction(R.string.root_workaround, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            noSecureSettingsPermissionPrompt();
+                        }
+                    }).show();
+                    return false;
+                }
             }
         }
         if (preference.getKey().equals("maximize_brightness")) {
-            if (hasModifySettingsPermission())
-                return true;
-            else {
+            if (!hasModifySettingsPermission()) {
                 MainActivity.askForPermission(getActivity(), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -232,8 +234,10 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                         }
                     }
                 }, false, "change system settings");
+                return false;
             }
         }
-        return false;
+        restartService();
+        return true;
     }
 }

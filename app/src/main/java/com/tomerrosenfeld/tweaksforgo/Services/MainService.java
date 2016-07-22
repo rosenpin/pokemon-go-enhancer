@@ -119,7 +119,6 @@ public class MainService extends Service {
     }
 
     private void GOLaunched() {
-        prefs.apply(this);
         Log.d(MainService.class.getSimpleName(), "GO launched");
         if (prefs.getBoolean(Prefs.batterySaver, false))
             setBatterySaver(true);
@@ -141,7 +140,6 @@ public class MainService extends Service {
     }
 
     private void GOClosed() {
-        prefs.apply(this);
         Log.d(MainService.class.getSimpleName(), "GO closed");
         if (prefs.getBoolean(Prefs.batterySaver, false))
             setBatterySaver(false);
@@ -185,6 +183,8 @@ public class MainService extends Service {
 
     private void registerAccelerometer() {
         if (prefs.getBoolean(Prefs.overlay, false) || prefs.getBoolean(Prefs.dim, false)) {
+            if (sensorManager == null)
+                initAccelerometer();
             List<Sensor> sensorList = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
             Sensor accelerometerSensor;
             if (sensorList.size() > 0) {
