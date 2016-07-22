@@ -119,6 +119,8 @@ public class MainService extends Service {
         originalLocationMode = Settings.Secure.getInt(getContentResolver(), Settings.Secure.LOCATION_MODE, 0);
         if (prefs.getBoolean(Prefs.extreme_battery_saver, false))
             extremeBatterySaver(true);
+
+        setNotification(true);
         isGoOpen = true;
     }
 
@@ -132,6 +134,7 @@ public class MainService extends Service {
             extremeBatterySaver(false);
         unregisterAccelerator();
 
+        setNotification(false);
         isGoOpen = false;
     }
 
@@ -206,6 +209,19 @@ public class MainService extends Service {
                 Settings.Secure.putInt(getContentResolver(), Settings.Secure.LOCATION_MODE, originalLocationMode);
         } catch (Exception ignored) {
             prefs.set(Prefs.extreme_battery_saver, false);
+        }
+    }
+
+    private void setNotification(boolean state){
+        try {
+            Intent i = new Intent();
+            i.setComponent(new ComponentName("com.tomer.poke.notifier", "com.tomer.poke.notifier.Services.MainService"));
+            if (state)
+                startService(i);
+            else
+                stopService(i);
+        }catch (Exception ignored){
+            Log.d(MainService.class.getSimpleName(),"Notifications for GO is not installed");
         }
     }
 
