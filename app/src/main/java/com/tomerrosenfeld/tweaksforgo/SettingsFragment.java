@@ -1,6 +1,5 @@
 package com.tomerrosenfeld.tweaksforgo;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,6 +18,7 @@ import android.view.View;
 import android.view.WindowManager;
 
 import com.tomerrosenfeld.tweaksforgo.Activities.MainActivity;
+import com.tomerrosenfeld.tweaksforgo.Services.MainService;
 
 import java.io.IOException;
 import java.util.List;
@@ -160,8 +160,9 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
     @Override
     public boolean onPreferenceChange(Preference preference, Object o) {
         if (preference.getKey().equals("battery_saver"))
-            if (Shell.SU.available())
+            if (Shell.SU.available()) {
                 return true;
+            }
             else
                 Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.warning_1_root, Snackbar.LENGTH_LONG).show();
         if (preference.getKey().equals("overlay")) {
@@ -177,8 +178,9 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                         }
                     }
                 }, false, "show a black screen over other apps");
-            } else
+            } else {
                 return true;
+            }
         }
         if (preference.getKey().equals("dim")) {
             if (!hasModifySettingsPermission()) {
@@ -193,12 +195,14 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                         }
                     }
                 }, false, "change system settings");
-            } else
+            } else {
                 return true;
+            }
         }
         if (preference.getKey().equals("extreme_battery_saver")) {
-            if (hasModifySecurePermission())
+            if (hasModifySecurePermission()) {
                 return true;
+            }
             try {
                 Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", "pm grant " + getActivity().getPackageName() + " android.permission.WRITE_SECURE_SETTINGS"});
                 process.waitFor();

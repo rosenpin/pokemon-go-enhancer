@@ -119,6 +119,7 @@ public class MainService extends Service {
     }
 
     private void GOLaunched() {
+        prefs.apply(this);
         Log.d(MainService.class.getSimpleName(), "GO launched");
         if (prefs.getBoolean(Prefs.batterySaver, false))
             setBatterySaver(true);
@@ -140,6 +141,7 @@ public class MainService extends Service {
     }
 
     private void GOClosed() {
+        prefs.apply(this);
         Log.d(MainService.class.getSimpleName(), "GO closed");
         if (prefs.getBoolean(Prefs.batterySaver, false))
             setBatterySaver(false);
@@ -182,13 +184,15 @@ public class MainService extends Service {
     }
 
     private void registerAccelerometer() {
-        List<Sensor> sensorList = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
-        Sensor accelerometerSensor;
-        if (sensorList.size() > 0) {
-            accelerometerSensor = sensorList.get(0);
-            sensorManager.registerListener(accelerometerListener, accelerometerSensor, 2000);
-        } else {
-            Toast.makeText(MainService.this, "Device doesn't have a supported accelerometer sensor", Toast.LENGTH_SHORT).show();
+        if (prefs.getBoolean(Prefs.overlay, false) || prefs.getBoolean(Prefs.dim, false)) {
+            List<Sensor> sensorList = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
+            Sensor accelerometerSensor;
+            if (sensorList.size() > 0) {
+                accelerometerSensor = sensorList.get(0);
+                sensorManager.registerListener(accelerometerListener, accelerometerSensor, 2000);
+            } else {
+                Toast.makeText(MainService.this, "Device doesn't have a supported accelerometer sensor", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -255,7 +259,7 @@ public class MainService extends Service {
     private void dimScreen(boolean state) {
         if (prefs.getBoolean(Prefs.dim, false)) {
             Log.d("Original brightness is ", String.valueOf(originalBrightness));
-            if (!state && prefs.getBoolean(Prefs.maximize_brightness, false)){
+            if (!state && prefs.getBoolean(Prefs.maximize_brightness, false)) {
                 maximizeBrightness(true);
                 return;
             }

@@ -43,4 +43,8 @@ public class Prefs {
     public void set(String key, String val) {
         preferences.edit().putString(key, val).apply();
     }
+
+    public void apply(Context context) {
+        preferences = PreferenceManager.getDefaultSharedPreferences(context);
+    }
 }
