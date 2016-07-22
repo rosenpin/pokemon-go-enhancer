@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">Enhancer for GO</string>
+    <!--Intro-->
+    <string name="intro_choose_your_team">Choose your team</string>
+    <string name="intro_skip">Skip</string>
     <!--Settings Category-->
     <string name="settings_battery_save">Battery saving</string>
     <string name="settings_enhancements">Enhancements</string>
@@ -10,13 +13,13 @@
     <string name="settings_proximity_sensor">Proximity sensor</string>
     <string name="settings_keep_screen_on">Keep screen on</string>
     <string name="settings_battery_saver">Battery saver</string>
+    <string name="settings_kill_background_processes">Kill background processes</string>
     <!--Settings Descriptions-->
     <string name="settings_notifications_desc">Get notifications about new Pokemon around you. Click here to configure the notifications</string>
-    <string name="settings_overlay_desc">Overlay screen with a black view to save battery and disable touches</string>
+    <string name="settings_overlay_desc">Overlay screen with a black view to save battery and disable touches. Recommended for devices with AMOLED screens.</string>
     <string name="settings_dim_desc">Dim screen when overlay is active</string>
     <string name="settings_proximity_sensor_desc">Use the proximity sensor to detect if overlay will be shown</string>
     <string name="settings_keep_screen_on_desc">Keep the screen on while you are playing the game</string>
     <string name="settings_battery_saver_desc">Start battery saver automatically when the game starts (requires root)</string>
-    <string name="choose_your_team">Choose your team</string>
-    <string name="skip">Skip</string>
+    <string name="settings_kill_background_processes_desc">Kill background processes when the Pokemon GO is launched to save battery and improve the apps performance (Recommended for devices with less than 2GB of ram)</string>
 </resources>

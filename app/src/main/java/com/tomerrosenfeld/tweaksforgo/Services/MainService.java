@@ -8,10 +8,12 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ApplicationInfo;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.BatteryManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
@@ -22,7 +24,9 @@ import android.util.Log;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
+import com.tomerrosenfeld.tweaksforgo.Constants;
 import com.tomerrosenfeld.tweaksforgo.Globals;
 import com.tomerrosenfeld.tweaksforgo.Prefs;
 import com.tomerrosenfeld.tweaksforgo.Receivers.ScreenReceiver;
@@ -63,7 +67,7 @@ public class MainService extends Service {
 
     private void checkIfGoIsCurrentApp() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            final long INTERVAL = 1000;
+            final long INTERVAL = 2000;
             final long end = System.currentTimeMillis();
             final long begin = end - INTERVAL;
             UsageStatsManager manager = (UsageStatsManager) getSystemService(USAGE_STATS_SERVICE);
@@ -72,10 +76,12 @@ public class MainService extends Service {
                 UsageEvents.Event event = new UsageEvents.Event();
                 usageEvents.getNextEvent(event);
                 if (event.getEventType() == UsageEvents.Event.MOVE_TO_FOREGROUND) {
-                    if (event.getPackageName().equals("com.nianticlabs.pokemongo")) {
-                        GOLaunched();
+                    if (event.getPackageName().equals(Constants.GOPackageName)) {
+                        if (!isGoOpen)
+                            GOLaunched();
                     } else {
-                        GOClosed();
+                        if (isGoOpen)
+                            GOClosed();
                     }
                 }
             }
@@ -83,10 +89,12 @@ public class MainService extends Service {
             ActivityManager am = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
             List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
             ComponentName componentInfo = taskInfo.get(0).topActivity;
-            if (componentInfo.getPackageName().equals("com.nianticlabs.pokemongo")) {
-                GOLaunched();
+            if (componentInfo.getPackageName().equals(Constants.GOPackageName)) {
+                if (!isGoOpen)
+                    GOLaunched();
             } else {
-                GOClosed();
+                if (isGoOpen)
+                    GOClosed();
             }
         }
         new Handler().postDelayed(new Runnable() {
@@ -98,24 +106,27 @@ public class MainService extends Service {
     }
 
     private void GOLaunched() {
+        Log.d(MainService.class.getSimpleName(), "GO launched");
         if (prefs.getBoolean(Prefs.batterySaver, false))
             setBatterySaver(true);
         if (prefs.getBoolean(Prefs.keepAwake, true))
             wl.acquire();
         if (prefs.getBoolean(Prefs.overlay, false))
-            registerAccelerator();
+            registerAccelerometer();
+        if (prefs.getBoolean(Prefs.kill_background_processes, false))
+            killBackgroundProcesses();
 
         isGoOpen = true;
     }
 
     private void GOClosed() {
-        if (isGoOpen) {
-            if (prefs.getBoolean(Prefs.batterySaver, false))
-                setBatterySaver(false);
-            if (wl.isHeld())
-                wl.release();
-            unregisterAccelerator();
-        }
+        Log.d(MainService.class.getSimpleName(), "GO closed");
+        if (prefs.getBoolean(Prefs.batterySaver, false))
+            setBatterySaver(false);
+        if (wl.isHeld())
+            wl.release();
+        unregisterAccelerator();
+
         isGoOpen = false;
     }
 
@@ -142,12 +153,14 @@ public class MainService extends Service {
         windowParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
     }
 
-    private void registerAccelerator() {
+    private void registerAccelerometer() {
         List<Sensor> sensorList = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
         Sensor accelerometerSensor;
         if (sensorList.size() > 0) {
             accelerometerSensor = sensorList.get(0);
             sensorManager.registerListener(accelerometerListener, accelerometerSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        } else {
+            Toast.makeText(MainService.this, "Device doesn't have a supported accelerometer sensor", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -160,11 +173,31 @@ public class MainService extends Service {
 
     private void setBatterySaver(boolean status) {
         try {
-            Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", "settings put global low_power " + (status ? 1 : 0)});
-            process.waitFor();
+            if (!isConnected()) {
+                Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", "settings put global low_power " + (status ? 1 : 0)});
+                process.waitFor();
+            }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    private void killBackgroundProcesses() {
+        Log.d(MainService.class.getSimpleName(), "Killing background processes");
+        List<ApplicationInfo> packages = getPackageManager().getInstalledApplications(0);
+        ActivityManager mActivityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ApplicationInfo packageInfo : packages) {
+            if ((packageInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 1) continue;
+            if (packageInfo.packageName.contains("com.tomer")) continue;
+            mActivityManager.killBackgroundProcesses(packageInfo.packageName);
+        }
+    }
+
+    private boolean isConnected() {
+        Intent intent = registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        assert intent != null;
+        int plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
+        return plugged == BatteryManager.BATTERY_PLUGGED_AC || plugged == BatteryManager.BATTERY_PLUGGED_USB;
     }
 
     private SensorEventListener accelerometerListener = new SensorEventListener() {
