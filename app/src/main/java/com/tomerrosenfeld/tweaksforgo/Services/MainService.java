@@ -169,7 +169,7 @@ public class MainService extends Service {
     }
 
     private void initAccelerometer() {
-        if (prefs.getBoolean(Prefs.overlay, false) || prefs.getBoolean(Prefs.overlay, false)) {
+        if (prefs.getBoolean(Prefs.overlay, false) || prefs.getBoolean(Prefs.dim, false)) {
             sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
             windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
             black = new LinearLayout(getApplicationContext());
@@ -186,7 +186,7 @@ public class MainService extends Service {
         Sensor accelerometerSensor;
         if (sensorList.size() > 0) {
             accelerometerSensor = sensorList.get(0);
-            sensorManager.registerListener(accelerometerListener, accelerometerSensor, SensorManager.SENSOR_DELAY_NORMAL);
+            sensorManager.registerListener(accelerometerListener, accelerometerSensor, 2000);
         } else {
             Toast.makeText(MainService.this, "Device doesn't have a supported accelerometer sensor", Toast.LENGTH_SHORT).show();
         }
@@ -296,7 +296,7 @@ public class MainService extends Service {
         @Override
         public void onSensorChanged(SensorEvent arg0) {
             float y_value = arg0.values[1];
-            if (y_value < -3 && y_value > -17) {
+            if (y_value < -5 && y_value > -15) {
                 if (!isBlack) {
                     isBlack = true;
                     darkenTheScreen(true);
