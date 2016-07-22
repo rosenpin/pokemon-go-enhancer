@@ -252,11 +252,16 @@ public class MainService extends Service {
         }
     }
 
-    private void dimScreen(boolean state){
+    private void dimScreen(boolean state) {
         if (prefs.getBoolean(Prefs.dim, false)) {
             Log.d("Original brightness is ", String.valueOf(originalBrightness));
+            if (!state && prefs.getBoolean(Prefs.maximize_brightness, false)){
+                maximizeBrightness(true);
+                return;
+            }
             Settings.System.putInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE, state ? Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL : originalBrightnessMode);
             Settings.System.putInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, state ? 0 : originalBrightness);
+
         }
     }
 

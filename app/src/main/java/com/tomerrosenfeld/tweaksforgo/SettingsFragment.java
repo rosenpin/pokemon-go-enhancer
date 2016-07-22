@@ -68,10 +68,6 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
             ((TwoStatePreference) findPreference("maximize_brightness")).setChecked(false);
         else if (shouldAllowMaximizeBrightness)
             ((TwoStatePreference) findPreference("maximize_brightness")).setChecked(true);
-        if (((TwoStatePreference) findPreference("maximize_brightness")).isChecked()) {
-            ((TwoStatePreference) findPreference("dim")).setChecked(false);
-            ((TwoStatePreference) findPreference("dim")).setEnabled(false);
-        }
     }
 
     private void updateNotificationPreference() {
@@ -168,15 +164,8 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                         }
                     }
                 }, false, "change system settings");
-            } else {
-                if ((Boolean) o) {
-                    ((TwoStatePreference) findPreference("maximize_brightness")).setChecked(false);
-                    ((TwoStatePreference) findPreference("maximize_brightness")).setEnabled(false);
-                } else {
-                    ((TwoStatePreference) findPreference("maximize_brightness")).setEnabled(true);
-                }
+            } else
                 return true;
-            }
         }
         if (preference.getKey().equals("extreme_battery_saver")) {
             if (hasModifySecurePermission())
@@ -191,15 +180,9 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
             }
         }
         if (preference.getKey().equals("maximize_brightness")) {
-            if (hasModifySettingsPermission()) {
-                if ((Boolean) o) {
-                    ((TwoStatePreference) findPreference("dim")).setChecked(false);
-                    ((TwoStatePreference) findPreference("dim")).setEnabled(false);
-                } else {
-                    ((TwoStatePreference) findPreference("dim")).setEnabled(true);
-                }
+            if (hasModifySettingsPermission())
                 return true;
-            } else {
+            else {
                 MainActivity.askForPermission(getActivity(), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
