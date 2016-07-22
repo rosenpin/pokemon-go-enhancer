@@ -7,7 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Typeface;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
@@ -15,12 +15,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.TextView;
 
 import com.tomerrosenfeld.tweaksforgo.Prefs;
 import com.tomerrosenfeld.tweaksforgo.R;
 import com.tomerrosenfeld.tweaksforgo.Services.MainService;
 import com.tomerrosenfeld.tweaksforgo.SettingsFragment;
+
+import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
     Prefs prefs;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
             startService(new Intent(getApplicationContext(), MainService.class));
         }
     }
+
 
     private void applyTheme() {
         try {

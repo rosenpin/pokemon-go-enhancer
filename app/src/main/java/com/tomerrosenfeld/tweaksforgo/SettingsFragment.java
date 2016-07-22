@@ -18,6 +18,7 @@ import android.view.WindowManager;
 
 import com.tomerrosenfeld.tweaksforgo.Activities.MainActivity;
 
+import java.io.IOException;
 import java.util.List;
 
 import eu.chainfire.libsuperuser.Shell;
@@ -34,6 +35,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         findPreference("battery_saver").setOnPreferenceChangeListener(this);
         findPreference("overlay").setOnPreferenceChangeListener(this);
         findPreference("dim").setOnPreferenceChangeListener(this);
+        findPreference("extreme_battery_saver").setOnPreferenceChangeListener(this);
     }
 
     @Override
@@ -113,7 +115,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
             if (Shell.SU.available())
                 return true;
             else
-                Snackbar.make(getActivity().findViewById(android.R.id.content), "This feature requires root", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.warning_1_root, Snackbar.LENGTH_LONG).show();
         if (preference.getKey().equals("overlay")) {
             if (!hasDrawingPermission()) {
                 MainActivity.askForPermission(getActivity(), new DialogInterface.OnClickListener() {
@@ -145,6 +147,16 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                 }, false, "change system settings");
             } else
                 return true;
+        }
+        if (preference.getKey().equals("extreme_battery_saver")) {
+            try {
+                Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", "pm grant " + getActivity().getPackageName() + " android.permission.WRITE_SECURE_SETTINGS"});
+                process.waitFor();
+                return true;
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+                Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.warning_1_root, Snackbar.LENGTH_LONG).show();
+            }
         }
         return false;
     }

@@ -18,6 +18,11 @@
             android:key="battery_saver"
             android:summary="@string/settings_battery_saver_desc"
             android:title="@string/settings_battery_saver" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="extreme_battery_saver"
+            android:summary="@string/settings_extreme_battery_saver_desc"
+            android:title="@string/settings_extreme_battery_saver" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/settings_enhancements">
         <SwitchPreference

@@ -45,6 +45,7 @@ public class MainService extends Service {
     private SensorManager sensorManager;
     private ScreenReceiver screenReceiver;
     private IntentFilter filter;
+    private int originalLocationMode;
 
     @Nullable
     @Override
@@ -115,7 +116,9 @@ public class MainService extends Service {
             registerAccelerometer();
         if (prefs.getBoolean(Prefs.kill_background_processes, false))
             killBackgroundProcesses();
-
+        originalLocationMode = Settings.Secure.getInt(getContentResolver(), Settings.Secure.LOCATION_MODE, 0);
+        if (prefs.getBoolean(Prefs.extreme_battery_saver, false))
+            extremeBatterySaver(true);
         isGoOpen = true;
     }
 
@@ -125,6 +128,8 @@ public class MainService extends Service {
             setBatterySaver(false);
         if (wl.isHeld())
             wl.release();
+        if (prefs.getBoolean(Prefs.extreme_battery_saver, false) && originalLocationMode != 2)
+            extremeBatterySaver(false);
         unregisterAccelerator();
 
         isGoOpen = false;
@@ -174,7 +179,7 @@ public class MainService extends Service {
     private void setBatterySaver(boolean status) {
         try {
             if (!isConnected()) {
-                Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", "settings put global low_power " + (status ? 1 : 0)});
+                Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", "settings put global low_power" + (status ? 1 : 0)});
                 process.waitFor();
             }
         } catch (IOException | InterruptedException e) {
@@ -190,6 +195,17 @@ public class MainService extends Service {
             if ((packageInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 1) continue;
             if (packageInfo.packageName.contains("com.tomer")) continue;
             mActivityManager.killBackgroundProcesses(packageInfo.packageName);
+        }
+    }
+
+    private void extremeBatterySaver(boolean state) {
+        try {
+            if (state)
+                Settings.Secure.putInt(getContentResolver(), Settings.Secure.LOCATION_MODE, Settings.Secure.LOCATION_MODE_BATTERY_SAVING);
+            else
+                Settings.Secure.putInt(getContentResolver(), Settings.Secure.LOCATION_MODE, originalLocationMode);
+        } catch (Exception ignored) {
+            prefs.set(Prefs.extreme_battery_saver, false);
         }
     }
 

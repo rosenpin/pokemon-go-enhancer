@@ -1,8 +1,12 @@
 <resources>
     <string name="app_name">Enhancer for GO</string>
+    <!--Menu-->
+    <string name="menu_change_team">Change team</string>
     <!--Intro-->
     <string name="intro_choose_your_team">Choose your team</string>
     <string name="intro_skip">Skip</string>
+    <!--Warnings-->
+    <string name="warning_1_root">Your device must be rooted to use this feature</string>
     <!--Settings Category-->
     <string name="settings_battery_save">Battery saving</string>
     <string name="settings_enhancements">Enhancements</string>
@@ -14,6 +18,7 @@
     <string name="settings_keep_screen_on">Keep screen on</string>
     <string name="settings_battery_saver">Battery saver</string>
     <string name="settings_kill_background_processes">Kill background processes</string>
+    <string name="settings_extreme_battery_saver">Extreme battery saver</string>
     <!--Settings Descriptions-->
     <string name="settings_notifications_desc">Get notifications about new Pokemon around you. Click here to configure the notifications</string>
     <string name="settings_overlay_desc">Overlay screen with a black view to save battery and disable touches. Recommended for devices with AMOLED screens.</string>
@@ -22,5 +27,5 @@
     <string name="settings_keep_screen_on_desc">Keep the screen on while you are playing the game</string>
     <string name="settings_battery_saver_desc">Start battery saver automatically when the game starts (requires root)</string>
     <string name="settings_kill_background_processes_desc">Kill background processes when the game is launched to save battery and improve the apps performance (Recommended for devices with less than 2GB of ram)</string>
-    <string name="menu_change_team">Change team</string>
+    <string name="settings_extreme_battery_saver_desc">Change location mode to battery saving to reduce battery consumption. This can cause lag in the game (requires root)</string>
 </resources>
