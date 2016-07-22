@@ -36,14 +36,17 @@
             android:name=".Activities.TeamPicker"
             android:theme="@style/AppTheme.NoActionBar" />
 
+        <activity
+            android:name=".Activities.ReporterActivity"
+            android:theme="@style/ReporterTheme" />
+
         <receiver android:name=".Receivers.BootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".Receivers.ScreenReceiver">
-        </receiver>
+        <receiver android:name=".Receivers.ScreenReceiver"></receiver>
     </application>
 
 </manifest>

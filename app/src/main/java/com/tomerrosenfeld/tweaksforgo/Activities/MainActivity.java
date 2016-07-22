@@ -11,10 +11,12 @@ import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.provider.Settings;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -25,6 +27,8 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.android.vending.billing.IInAppBillingService;
+import com.tomerrosenfeld.tweaksforgo.ContextUtils;
+import com.tomerrosenfeld.tweaksforgo.Globals;
 import com.tomerrosenfeld.tweaksforgo.Prefs;
 import com.tomerrosenfeld.tweaksforgo.R;
 import com.tomerrosenfeld.tweaksforgo.SecretConstants;
@@ -146,6 +150,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(new Intent(getApplicationContext(), TeamPicker.class));
                 finish();
                 break;
+            case R.id.menu_feedback:
+                TypedValue typedValue = new TypedValue();
+                getTheme().resolveAttribute(R.attr.colorPrimary, typedValue, true);
+                Globals.toolbarColor = typedValue.data;
+                getTheme().resolveAttribute(R.attr.colorPrimaryDark, typedValue, true);
+                Globals.toolbarColorDark = typedValue.data;
+                startActivity(new Intent(getApplicationContext(), ReporterActivity.class));
+                break;
+            case R.id.menu_about:
+                ContextUtils.openUrl(this, "https://github.com/rosenpin/Enhancer-For-GO");
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -175,5 +190,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Log.d(MainActivity.class.getSimpleName(), "Purchase");
+        Snackbar.make(findViewById(android.R.id.content), R.string.thank_you, Snackbar.LENGTH_LONG).show();
     }
 }

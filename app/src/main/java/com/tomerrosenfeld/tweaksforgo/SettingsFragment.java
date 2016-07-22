@@ -1,5 +1,6 @@
 package com.tomerrosenfeld.tweaksforgo;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,6 +14,7 @@ import android.preference.PreferenceFragment;
 import android.preference.TwoStatePreference;
 import android.provider.Settings;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -81,6 +83,33 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                 return false;
             }
         });
+    }
+
+    private void noSecureSettingsPermissionPrompt() {
+        new AlertDialog.Builder(getActivity())
+                .setTitle(getString(R.string.root_workaround))
+                .setMessage(getString(R.string.root_workaround_desc))
+                .setPositiveButton(R.string.share_command, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent share = new Intent(Intent.ACTION_SEND);
+                        share.setType("text/plain");
+                        share.putExtra(Intent.EXTRA_TEXT, getString(R.string.adb_command));
+                        startActivity(Intent.createChooser(share, getString(R.string.share_command_title)));
+                    }
+                })
+                .setNegativeButton(getString(R.string.how_to), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        ContextUtils.openUrl(getActivity(), "http://lifehacker.com/the-easiest-way-to-install-androids-adb-and-fastboot-to-1586992378");
+                    }
+                })
+                .setNeutralButton(getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                }).show();
     }
 
     private boolean isNotificationForGOInstalled() {
@@ -176,7 +205,12 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                 return true;
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
-                Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.warning_1_root, Snackbar.LENGTH_LONG).show();
+                Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.warning_1_root, Snackbar.LENGTH_LONG).setAction(R.string.root_workaround, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        noSecureSettingsPermissionPrompt();
+                    }
+                }).show();
             }
         }
         if (preference.getKey().equals("maximize_brightness")) {

@@ -5,5 +5,12 @@
         android:id="@+id/menu_change_team"
         android:title="@string/menu_change_team"
         app:showAsAction="never" />
-
+    <item
+        android:id="@+id/menu_feedback"
+        android:title="@string/menu_feedback"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_about"
+        android:title="@string/menu_about"
+        app:showAsAction="never" />
 </menu>
