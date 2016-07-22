@@ -11,7 +11,6 @@ import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -33,7 +32,6 @@ import com.tomerrosenfeld.tweaksforgo.Globals;
 import com.tomerrosenfeld.tweaksforgo.Prefs;
 import com.tomerrosenfeld.tweaksforgo.R;
 import com.tomerrosenfeld.tweaksforgo.SecretConstants;
-import com.tomerrosenfeld.tweaksforgo.Services.MainService;
 import com.tomerrosenfeld.tweaksforgo.SettingsFragment;
 
 import java.util.ArrayList;
@@ -57,7 +55,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
-            setUpDonateButton(ownedItems != null);
+            boolean supported = false;
+            if (ownedItems != null)
+                if (ownedItems.size() > 0)
+                    supported = true;
+            setUpDonateButton(supported);
         }
     };
 
@@ -84,8 +86,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setUpDonateButton(boolean hide) {
-        if (hide){
-            ((RelativeLayout)findViewById(R.id.wrapper)).removeView(findViewById(R.id.donate));
+        if (hide) {
+            ((RelativeLayout) findViewById(R.id.wrapper)).removeView(findViewById(R.id.donate));
             return;
         }
         TypedValue typedValue = new TypedValue();
