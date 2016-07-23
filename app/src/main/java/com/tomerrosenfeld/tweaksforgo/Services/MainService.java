@@ -82,6 +82,7 @@ public class MainService extends Service {
             floatingActionsMenu = new FloatingActionsMenu(this);
             FloatingActionButton pokeVisionFAB = new FloatingActionButton(this);
             pokeVisionFAB.setIcon(R.drawable.ic_info);
+            pokeVisionFAB.setTitle("Pokevision");
             pokeVisionFAB.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

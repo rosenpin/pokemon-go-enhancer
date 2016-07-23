@@ -197,6 +197,22 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                 return false;
             }
         }
+        if (preference.getKey().equals("show_fab")) {
+            if (!hasDrawingPermission()) {
+                MainActivity.askForPermission(getActivity(), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getActivity().getPackageName()));
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                            shouldAllowOverlay = true;
+                        }
+                    }
+                }, false, "show a black screen over other apps");
+                return false;
+            }
+        }
         if (preference.getKey().equals("dim")) {
             if (!hasModifySettingsPermission()) {
                 MainActivity.askForPermission(getActivity(), new DialogInterface.OnClickListener() {
