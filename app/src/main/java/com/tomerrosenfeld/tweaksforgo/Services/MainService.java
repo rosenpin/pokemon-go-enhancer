@@ -125,8 +125,7 @@ public class MainService extends Service {
     }
 
     private void initScreenHolder() {
-        if (prefs.getBoolean(Prefs.keepAwake, true))
-            wl = ((PowerManager) getSystemService(Context.POWER_SERVICE)).newWakeLock(PowerManager.FULL_WAKE_LOCK, "Tweaks For GO Tag");
+        wl = ((PowerManager) getSystemService(Context.POWER_SERVICE)).newWakeLock(PowerManager.FULL_WAKE_LOCK, "Tweaks For GO Tag");
     }
 
     private void checkIfGoIsCurrentApp() {
