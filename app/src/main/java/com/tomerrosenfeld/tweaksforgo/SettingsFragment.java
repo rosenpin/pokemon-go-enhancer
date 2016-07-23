@@ -167,13 +167,18 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
     public boolean onPreferenceChange(Preference preference, Object o) {
         if (preference.getKey().equals("battery_saver")) {
             if (!hasModifySecurePermission()) {
-                Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.warning_1_root, Snackbar.LENGTH_LONG).setAction(R.string.root_workaround, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        noSecureSettingsPermissionPrompt();
-                    }
-                }).show();
-                return false;
+                try {
+                    Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", "pm grant " + getActivity().getPackageName() + " android.permission.WRITE_SECURE_SETTINGS"});
+                    process.waitFor();
+                } catch (IOException | InterruptedException e) {
+                    Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.warning_1_root, Snackbar.LENGTH_LONG).setAction(R.string.root_workaround, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            noSecureSettingsPermissionPrompt();
+                        }
+                    }).show();
+                    return false;
+                }
             }
         }
         if (preference.getKey().equals("overlay")) {
