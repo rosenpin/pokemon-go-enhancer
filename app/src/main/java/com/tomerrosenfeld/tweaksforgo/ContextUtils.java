@@ -1,12 +1,13 @@
 package com.tomerrosenfeld.tweaksforgo;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 
 public class ContextUtils {
     public static void openUrl(Context activity, String url) {
-        activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        activity.startActivity(intent);
     }
 }
