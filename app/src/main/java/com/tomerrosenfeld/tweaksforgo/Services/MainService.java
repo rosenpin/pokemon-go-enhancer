@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
+import android.graphics.PixelFormat;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -21,14 +22,20 @@ import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.getbase.floatingactionbutton.FloatingActionButton;
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.tomerrosenfeld.tweaksforgo.Constants;
+import com.tomerrosenfeld.tweaksforgo.ContextUtils;
 import com.tomerrosenfeld.tweaksforgo.Globals;
 import com.tomerrosenfeld.tweaksforgo.Prefs;
+import com.tomerrosenfeld.tweaksforgo.R;
 import com.tomerrosenfeld.tweaksforgo.Receivers.ScreenReceiver;
 
 import java.io.IOException;
@@ -47,6 +54,8 @@ public class MainService extends Service {
     private int originalBrightness;
     private int originalLocationMode;
     private int originalBrightnessMode;
+    private FloatingActionsMenu floatingActionsMenu;
+    private WindowManager.LayoutParams floatingActionMenuLP;
 
     @Nullable
     @Override
@@ -59,11 +68,52 @@ public class MainService extends Service {
         super.onCreate();
         Log.d(MainService.class.getSimpleName(), "Main service started");
         prefs = new Prefs(this);
+        initWindowManager();
         initOriginalStates();
         initAccelerometer();
         initScreenHolder();
         initScreenReceiver();
         checkIfGoIsCurrentApp();
+        initFloatingActionButton();
+    }
+
+    private void initFloatingActionButton() {
+        try {
+            floatingActionsMenu = new FloatingActionsMenu(this);
+            FloatingActionButton pokeVisionFAB = new FloatingActionButton(this);
+            pokeVisionFAB.setIcon(R.drawable.ic_info);
+            pokeVisionFAB.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ContextUtils.openUrl(MainService.this, "https://pokevision.com/");
+                }
+            });
+            FloatingActionButton evolutionCountFAB = new FloatingActionButton(this);
+            evolutionCountFAB.setIcon(R.drawable.ic_mode_edit);
+            evolutionCountFAB.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ContextUtils.openUrl(MainService.this, "http://pogotoolkit.com/");
+                }
+            });
+            floatingActionsMenu.addButton(pokeVisionFAB);
+            floatingActionsMenu.addButton(evolutionCountFAB);
+            floatingActionMenuLP = new WindowManager.LayoutParams(100, 100, WindowManager.LayoutParams.TYPE_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH, PixelFormat.TRANSLUCENT);
+            floatingActionMenuLP.gravity = Gravity.TOP | Gravity.END;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void showFAB(boolean state) {
+        try {
+            if (state)
+                ((WindowManager) this.getSystemService(WINDOW_SERVICE)).addView(floatingActionsMenu, floatingActionMenuLP);
+            else
+                ((WindowManager) this.getSystemService(WINDOW_SERVICE)).removeView(floatingActionsMenu);
+        } catch (Exception ignored) {
+        }
+        ;
     }
 
     private void initOriginalStates() {
@@ -134,6 +184,8 @@ public class MainService extends Service {
         }
         if (prefs.getBoolean(Prefs.maximize_brightness, false))
             maximizeBrightness(true);
+        if (prefs.getBoolean(Prefs.showFAB, false))
+            showFAB(true);
 
         setNotification(true);
         isGoOpen = true;
@@ -150,6 +202,8 @@ public class MainService extends Service {
             extremeBatterySaver(false);
         if (prefs.getBoolean(Prefs.maximize_brightness, false))
             maximizeBrightness(false);
+        if (prefs.getBoolean(Prefs.showFAB, false))
+            showFAB(false);
 
         setNotification(false);
         isGoOpen = false;
@@ -168,16 +222,19 @@ public class MainService extends Service {
         }
     }
 
+    private void initWindowManager() {
+        windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        windowParams = new WindowManager.LayoutParams(-1, -1, 2003, 65794, -2);
+        windowParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
+    }
+
     private void initAccelerometer() {
         if (prefs.getBoolean(Prefs.overlay, false) || prefs.getBoolean(Prefs.dim, false)) {
             sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-            windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
             black = new LinearLayout(getApplicationContext());
             black.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             black.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), android.R.color.black));
             Globals.blackLayout = black;
-            windowParams = new WindowManager.LayoutParams(-1, -1, 2003, 65794, -2);
-            windowParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
         }
     }
 

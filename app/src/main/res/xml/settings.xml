@@ -32,6 +32,11 @@
             android:title="@string/settings_keep_screen_on" />
         <SwitchPreference
             android:defaultValue="false"
+            android:key="show_fab"
+            android:summary="Show a floating menu with handy links"
+            android:title="Floating menu" />
+        <SwitchPreference
+            android:defaultValue="false"
             android:key="kill_background_processes"
             android:summary="@string/settings_kill_background_processes_desc"
             android:title="@string/settings_kill_background_processes" />
