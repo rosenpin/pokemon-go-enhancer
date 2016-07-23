@@ -206,4 +206,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.d(MainActivity.class.getSimpleName(), "Purchase");
         Snackbar.make(findViewById(android.R.id.content), R.string.thank_you, Snackbar.LENGTH_LONG).show();
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            unbindService(mServiceConn);
+        } catch (Exception ignored) {
+        }
+    }
 }

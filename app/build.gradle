@@ -8,8 +8,8 @@ android {
         applicationId "com.tomerrosenfeld.tweaksforgo"
         minSdkVersion 19
         targetSdkVersion 24
-        versionCode 14
-        versionName "1.06"
+        versionCode 15
+        versionName "1.07"
     }
     buildTypes {
         release {

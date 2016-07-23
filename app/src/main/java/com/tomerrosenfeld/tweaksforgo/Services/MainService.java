@@ -15,6 +15,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.BatteryManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
@@ -80,6 +81,7 @@ public class MainService extends Service {
     private void initFloatingActionButton() {
         try {
             floatingActionsMenu = new FloatingActionsMenu(this);
+            floatingActionsMenu.expand();
             FloatingActionButton pokeVisionFAB = new FloatingActionButton(this);
             pokeVisionFAB.setIcon(R.drawable.ic_info);
             pokeVisionFAB.setTitle("Pokevision");
@@ -91,6 +93,7 @@ public class MainService extends Service {
             });
             FloatingActionButton evolutionCountFAB = new FloatingActionButton(this);
             evolutionCountFAB.setIcon(R.drawable.ic_mode_edit);
+            evolutionCountFAB.setTitle("CP Calculator");
             evolutionCountFAB.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -100,7 +103,7 @@ public class MainService extends Service {
             floatingActionsMenu.addButton(pokeVisionFAB);
             floatingActionsMenu.addButton(evolutionCountFAB);
             floatingActionMenuLP = new WindowManager.LayoutParams(100, 100, WindowManager.LayoutParams.TYPE_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH, PixelFormat.TRANSLUCENT);
-            floatingActionMenuLP.gravity = Gravity.TOP | Gravity.END;
+            floatingActionMenuLP.gravity = Gravity.TOP | Gravity.RIGHT;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -129,7 +132,8 @@ public class MainService extends Service {
     }
 
     private void checkIfGoIsCurrentApp() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+        Log.d(MainService.class.getSimpleName(),"Checking current app");
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
             final long INTERVAL = 1000;
             final long end = System.currentTimeMillis();
             final long begin = end - INTERVAL;
@@ -138,6 +142,7 @@ public class MainService extends Service {
             while (usageEvents.hasNextEvent()) {
                 UsageEvents.Event event = new UsageEvents.Event();
                 usageEvents.getNextEvent(event);
+                Log.d("Current app",event.getPackageName());
                 if (event.getEventType() == UsageEvents.Event.MOVE_TO_FOREGROUND) {
                     if (event.getPackageName().equals(Constants.GOPackageName)) {
                         if (!isGoOpen)
@@ -165,7 +170,7 @@ public class MainService extends Service {
             public void run() {
                 checkIfGoIsCurrentApp();
             }
-        }, 1000);
+        }, 800);
     }
 
     private void GOLaunched() {
