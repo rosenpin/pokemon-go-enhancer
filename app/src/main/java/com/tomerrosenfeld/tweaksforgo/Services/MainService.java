@@ -206,11 +206,16 @@ public class MainService extends Service {
     private void setBatterySaver(boolean status) {
         try {
             if (!isConnected()) {
+                Settings.Global.putInt(getContentResolver(), "low_power", status ? 1 : 0);
+            }
+        } catch (SecurityException e) {
+            e.printStackTrace();
+            try {
                 Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", "settings put global low_power " + (status ? 1 : 0)});
                 process.waitFor();
+            } catch (InterruptedException | IOException e1) {
+                e1.printStackTrace();
             }
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
         }
     }
 

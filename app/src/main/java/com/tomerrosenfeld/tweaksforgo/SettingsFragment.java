@@ -23,8 +23,6 @@ import com.tomerrosenfeld.tweaksforgo.Services.MainService;
 import java.io.IOException;
 import java.util.List;
 
-import eu.chainfire.libsuperuser.Shell;
-
 public class SettingsFragment extends PreferenceFragment implements Preference.OnPreferenceChangeListener {
     boolean shouldAllowOverlay;
     boolean shouldAllowDim;
@@ -168,8 +166,13 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
     @Override
     public boolean onPreferenceChange(Preference preference, Object o) {
         if (preference.getKey().equals("battery_saver")) {
-            if (!Shell.SU.available()) {
-                Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.warning_1_root, Snackbar.LENGTH_LONG).show();
+            if (!hasModifySecurePermission()) {
+                Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.warning_1_root, Snackbar.LENGTH_LONG).setAction(R.string.root_workaround, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        noSecureSettingsPermissionPrompt();
+                    }
+                }).show();
                 return false;
             }
         }
