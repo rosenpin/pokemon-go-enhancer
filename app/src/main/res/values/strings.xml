@@ -47,4 +47,17 @@
     <string name="settings_floating_menu_desc">Show a floating menu to toggle overlay and access handy links</string>
     <string name="settings_screen_off_proximity_desc">Turn off the display when you put the device in your pocket or cover the proximity sensor to save battery. (only for Android 5.0+)</string>
     <string name="settings_screen_off_proximity">Auto pocket mode</string>
+    <string name="settings_floating_menu_position">Floating menu position</string>
+    <string name="settings_floating_menu_position_desc">Choose where you want the floating menu to appear on the screen</string>
+
+    <string-array name="fab_position">
+        <item>Top left</item>
+        <item>Center left</item>
+        <item>Center right</item>
+    </string-array>
+    <string-array name="fab_position_vals">
+        <item>51</item>
+        <item>19</item>
+        <item>21</item>
+    </string-array>
 </resources>

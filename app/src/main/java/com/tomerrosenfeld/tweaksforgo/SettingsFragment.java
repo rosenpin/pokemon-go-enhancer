@@ -42,7 +42,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         findPreference("maximize_brightness").setOnPreferenceChangeListener(this);
         findPreference("show_fab").setOnPreferenceChangeListener(this);
         mainServiceIntent = new Intent(getActivity(), MainService.class);
-        getActivity().startService(new Intent(getActivity(), MainService.class));
+        restartService();
     }
 
     @Override
@@ -173,8 +173,8 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
     }
 
     private void restartService() {
-        getActivity().stopService(new Intent(getActivity(), MainService.class));
-        getActivity().startService(new Intent(getActivity(), MainService.class));
+        getActivity().stopService(mainServiceIntent);
+        getActivity().startService(mainServiceIntent);
     }
 
     @Override

@@ -16,6 +16,7 @@ public class Prefs {
     public static String maximize_brightness = "maximize_brightness";
     public static String showFAB = "show_fab";
     public static String screen_of_proximity = "screen_of_proximity";
+    public static String fab_position = "fab_position";
     SharedPreferences preferences;
 
     public Prefs(Context context) {

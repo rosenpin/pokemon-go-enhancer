@@ -22,7 +22,6 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -114,18 +113,24 @@ public class MainService extends Service {
                     darkenTheScreen(true);
                 }
             });
+            if (!prefs.getBoolean(Prefs.overlay, false)) {
+                ((FloatingActionMenu) fab.findViewById(R.id.menu)).removeMenuButton((FloatingActionButton) fab.findViewById(R.id.lock_fab));
+            }
             floatingActionMenuLP = new WindowManager.LayoutParams(100, 100, WindowManager.LayoutParams.TYPE_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH, PixelFormat.TRANSLUCENT);
-            floatingActionMenuLP.gravity = Gravity.TOP | Gravity.START;
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     private void showFAB(boolean state) {
+        floatingActionMenuLP.gravity = Integer.parseInt(prefs.getString(Prefs.fab_position, "51"));
         try {
-            if (state)
+            if (state) {
+                try {
+                    ((WindowManager) this.getSystemService(WINDOW_SERVICE)).removeView(fab);
+                }catch (Exception ignored){}
                 ((WindowManager) this.getSystemService(WINDOW_SERVICE)).addView(fab, floatingActionMenuLP);
-            else
+            } else
                 ((WindowManager) this.getSystemService(WINDOW_SERVICE)).removeView(fab);
         } catch (Exception ignored) {
         }
