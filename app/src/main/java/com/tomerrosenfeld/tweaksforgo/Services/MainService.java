@@ -74,8 +74,8 @@ public class MainService extends Service {
         initAccelerometer();
         initScreenHolder();
         initScreenReceiver();
-        checkIfGoIsCurrentApp();
         initFloatingActionButton();
+        checkIfGoIsCurrentApp();
     }
 
     private void initFloatingActionButton() {
@@ -95,7 +95,6 @@ public class MainService extends Service {
             ((FloatingActionButton) fab.findViewById(R.id.pokevision)).setColorNormal(ContextCompat.getColor(this, color));
             ((FloatingActionButton) fab.findViewById(R.id.cp_counter)).setColorNormal(ContextCompat.getColor(this, color));
             ((FloatingActionButton) fab.findViewById(R.id.lock_fab)).setColorNormal(ContextCompat.getColor(this, color));
-
 
             fab.findViewById(R.id.pokevision).setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -133,10 +132,8 @@ public class MainService extends Service {
     }
 
     private void initOriginalStates() {
-        if (prefs.getBoolean(Prefs.dim, false) || prefs.getBoolean(Prefs.maximize_brightness, false)) {
-            originalBrightness = Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, 100);
-            originalBrightnessMode = Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE, Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC);
-        }
+        originalBrightness = Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, 80);
+        originalBrightnessMode = Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE, Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC);
     }
 
     private void initScreenHolder() {
@@ -180,7 +177,7 @@ public class MainService extends Service {
             public void run() {
                 checkIfGoIsCurrentApp();
             }
-        }, 800);
+        }, 1000);
     }
 
     private void GOLaunched() {
@@ -310,14 +307,13 @@ public class MainService extends Service {
     }
 
     private void darkenTheScreen(boolean state) {
-        if (state && isGoOpen) {
+        if (state) {
             try {
                 windowManager.removeView(black);
             } catch (Exception ignored) {
                 Log.d("Receiver", "View is not attached");
             }
             windowManager.addView(black, windowParams);
-            dimScreen(true);
             registerReceiver(screenReceiver, filter);
             final TextView doubleTapToDismiss = new TextView(this);
             doubleTapToDismiss.setText("Double tap to dismiss");
@@ -329,6 +325,7 @@ public class MainService extends Service {
                 @Override
                 public void run() {
                     windowManager.removeView(doubleTapToDismiss);
+                    dimScreen(true);
                 }
             }, 3000);
         } else {
@@ -343,15 +340,16 @@ public class MainService extends Service {
     }
 
     private void dimScreen(boolean state) {
-        if (prefs.getBoolean(Prefs.dim, false)) {
-            Log.d("Original brightness is ", String.valueOf(originalBrightness));
-            if (!state && prefs.getBoolean(Prefs.maximize_brightness, false)) {
-                maximizeBrightness(true);
-                return;
-            }
+        Log.d("Original brightness is ", String.valueOf(originalBrightness));
+        if (!state && prefs.getBoolean(Prefs.maximize_brightness, false)) {
+            maximizeBrightness(true);
+            return;
+        }
+        try {
             Settings.System.putInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE, state ? Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL : originalBrightnessMode);
             Settings.System.putInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, state ? 0 : originalBrightness);
-
+        } catch (SecurityException e) {
+            Log.d(MainService.class.getSimpleName(), "Lacking modify settings permission");
         }
     }
 
