@@ -28,6 +28,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
     boolean shouldAllowDim;
     private boolean shouldAllowMaximizeBrightness;
     private Intent mainServiceIntent;
+    private boolean shouldAllowFab;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -39,6 +40,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         findPreference("dim").setOnPreferenceChangeListener(this);
         findPreference("extreme_battery_saver").setOnPreferenceChangeListener(this);
         findPreference("maximize_brightness").setOnPreferenceChangeListener(this);
+        findPreference("show_fab").setOnPreferenceChangeListener(this);
         mainServiceIntent = new Intent(getActivity(), MainService.class);
         getActivity().startService(new Intent(getActivity(), MainService.class));
     }
@@ -61,16 +63,24 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
             ((TwoStatePreference) findPreference("overlay")).setChecked(false);
         else if (shouldAllowOverlay)
             ((TwoStatePreference) findPreference("overlay")).setChecked(true);
+
         if (!hasModifySettingsPermission())
             ((TwoStatePreference) findPreference("dim")).setChecked(false);
         else if (shouldAllowDim)
             ((TwoStatePreference) findPreference("dim")).setChecked(true);
-        if (!hasModifySecurePermission())
-            ((TwoStatePreference) findPreference("extreme_battery_saver")).setChecked(false);
+
+        if (!hasDrawingPermission())
+            ((TwoStatePreference) findPreference("show_fab")).setChecked(false);
+        else if (shouldAllowFab)
+            ((TwoStatePreference) findPreference("show_fab")).setChecked(true);
+
         if (!hasModifySettingsPermission())
             ((TwoStatePreference) findPreference("maximize_brightness")).setChecked(false);
         else if (shouldAllowMaximizeBrightness)
             ((TwoStatePreference) findPreference("maximize_brightness")).setChecked(true);
+
+        if (!hasModifySecurePermission())
+            ((TwoStatePreference) findPreference("extreme_battery_saver")).setChecked(false);
     }
 
     private void updateNotificationPreference() {
@@ -206,7 +216,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                             Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getActivity().getPackageName()));
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(intent);
-                            shouldAllowOverlay = true;
+                            shouldAllowFab = true;
                         }
                     }
                 }, false, "show a black screen over other apps");
