@@ -9,11 +9,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Handler;
@@ -23,15 +20,19 @@ import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.GestureDetector;
 import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
-import android.widget.Toast;
+import android.widget.TextView;
 
-import com.getbase.floatingactionbutton.FloatingActionButton;
-import com.getbase.floatingactionbutton.FloatingActionsMenu;
+import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
 import com.tomerrosenfeld.tweaksforgo.Constants;
 import com.tomerrosenfeld.tweaksforgo.ContextUtils;
 import com.tomerrosenfeld.tweaksforgo.Globals;
@@ -49,13 +50,12 @@ public class MainService extends Service {
     private WindowManager windowManager;
     private LinearLayout black;
     private WindowManager.LayoutParams windowParams;
-    private SensorManager sensorManager;
     private ScreenReceiver screenReceiver;
     private IntentFilter filter;
     private int originalBrightness;
     private int originalLocationMode;
     private int originalBrightnessMode;
-    private FloatingActionsMenu floatingActionsMenu;
+    private View fab;
     private WindowManager.LayoutParams floatingActionMenuLP;
 
     @Nullable
@@ -80,30 +80,32 @@ public class MainService extends Service {
 
     private void initFloatingActionButton() {
         try {
-            floatingActionsMenu = new FloatingActionsMenu(this);
-            floatingActionsMenu.expand();
-            FloatingActionButton pokeVisionFAB = new FloatingActionButton(this);
-            pokeVisionFAB.setIcon(R.drawable.ic_info);
-            pokeVisionFAB.setTitle("Pokevision");
-            pokeVisionFAB.setOnClickListener(new View.OnClickListener() {
+            int theme = prefs.getInt(Prefs.theme, 0);
+            int color = theme == 1 ? R.color.colorPrimaryBlue : (theme == 2 ? R.color.colorPrimaryRed : (theme == 3 ? R.color.colorPrimaryYellow : R.color.colorPrimary));
+            fab = LayoutInflater.from(this).inflate(R.layout.fab, null);
+            ((FloatingActionMenu) fab.findViewById(R.id.menu)).setMenuButtonColorNormal(color);
+            ((FloatingActionButton) fab.findViewById(R.id.pokevision)).setColorNormal(color);
+            ((FloatingActionButton) fab.findViewById(R.id.cp_counter)).setColorNormal(color);
+            fab.findViewById(R.id.pokevision).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     ContextUtils.openUrl(MainService.this, "https://pokevision.com/");
                 }
             });
-            FloatingActionButton evolutionCountFAB = new FloatingActionButton(this);
-            evolutionCountFAB.setIcon(R.drawable.ic_mode_edit);
-            evolutionCountFAB.setTitle("CP Calculator");
-            evolutionCountFAB.setOnClickListener(new View.OnClickListener() {
+            fab.findViewById(R.id.cp_counter).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     ContextUtils.openUrl(MainService.this, "http://pogotoolkit.com/");
                 }
             });
-            floatingActionsMenu.addButton(pokeVisionFAB);
-            floatingActionsMenu.addButton(evolutionCountFAB);
+            fab.findViewById(R.id.lock_fab).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    darkenTheScreen(true);
+                }
+            });
             floatingActionMenuLP = new WindowManager.LayoutParams(100, 100, WindowManager.LayoutParams.TYPE_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH, PixelFormat.TRANSLUCENT);
-            floatingActionMenuLP.gravity = Gravity.TOP | Gravity.RIGHT;
+            floatingActionMenuLP.gravity = Gravity.TOP | Gravity.START;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -112,12 +114,11 @@ public class MainService extends Service {
     private void showFAB(boolean state) {
         try {
             if (state)
-                ((WindowManager) this.getSystemService(WINDOW_SERVICE)).addView(floatingActionsMenu, floatingActionMenuLP);
+                ((WindowManager) this.getSystemService(WINDOW_SERVICE)).addView(fab, floatingActionMenuLP);
             else
-                ((WindowManager) this.getSystemService(WINDOW_SERVICE)).removeView(floatingActionsMenu);
+                ((WindowManager) this.getSystemService(WINDOW_SERVICE)).removeView(fab);
         } catch (Exception ignored) {
         }
-        ;
     }
 
     private void initOriginalStates() {
@@ -132,7 +133,7 @@ public class MainService extends Service {
     }
 
     private void checkIfGoIsCurrentApp() {
-        Log.d(MainService.class.getSimpleName(),"Checking current app");
+        Log.d(MainService.class.getSimpleName(), "Checking current app");
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
             final long INTERVAL = 1000;
             final long end = System.currentTimeMillis();
@@ -142,15 +143,13 @@ public class MainService extends Service {
             while (usageEvents.hasNextEvent()) {
                 UsageEvents.Event event = new UsageEvents.Event();
                 usageEvents.getNextEvent(event);
-                Log.d("Current app",event.getPackageName());
-                if (event.getEventType() == UsageEvents.Event.MOVE_TO_FOREGROUND) {
-                    if (event.getPackageName().equals(Constants.GOPackageName)) {
-                        if (!isGoOpen)
-                            GOLaunched();
-                    } else {
-                        if (isGoOpen)
-                            GOClosed();
-                    }
+                Log.d("Current app", event.getPackageName());
+                if (event.getPackageName().equals(Constants.GOPackageName)) {
+                    if (!isGoOpen)
+                        GOLaunched();
+                } else {
+                    if (isGoOpen)
+                        GOClosed();
                 }
             }
         } else {
@@ -179,8 +178,6 @@ public class MainService extends Service {
             setBatterySaver(true);
         if (prefs.getBoolean(Prefs.keepAwake, true))
             wl.acquire();
-        if (prefs.getBoolean(Prefs.overlay, false))
-            registerAccelerometer();
         if (prefs.getBoolean(Prefs.kill_background_processes, false))
             killBackgroundProcesses();
         if (prefs.getBoolean(Prefs.extreme_battery_saver, false)) {
@@ -198,7 +195,6 @@ public class MainService extends Service {
 
     private void GOClosed() {
         Log.d(MainService.class.getSimpleName(), "GO closed");
-        unregisterAccelerator();
         if (prefs.getBoolean(Prefs.batterySaver, false))
             setBatterySaver(false);
         if (wl.isHeld())
@@ -235,33 +231,26 @@ public class MainService extends Service {
 
     private void initAccelerometer() {
         if (prefs.getBoolean(Prefs.overlay, false) || prefs.getBoolean(Prefs.dim, false)) {
-            sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
             black = new LinearLayout(getApplicationContext());
+            black.setOnTouchListener(new View.OnTouchListener() {
+                private GestureDetector gestureDetector = new GestureDetector(MainService.this, new GestureDetector.SimpleOnGestureListener() {
+                    @Override
+                    public boolean onDoubleTap(MotionEvent e) {
+                        darkenTheScreen(false);
+                        return super.onDoubleTap(e);
+                    }
+                });
+
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    Log.d("TEST", "Raw event: " + event.getAction() + ", (" + event.getRawX() + ", " + event.getRawY() + ")");
+                    gestureDetector.onTouchEvent(event);
+                    return true;
+                }
+            });
             black.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             black.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), android.R.color.black));
             Globals.blackLayout = black;
-        }
-    }
-
-    private void registerAccelerometer() {
-        if (prefs.getBoolean(Prefs.overlay, false) || prefs.getBoolean(Prefs.dim, false)) {
-            if (sensorManager == null)
-                initAccelerometer();
-            List<Sensor> sensorList = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
-            Sensor accelerometerSensor;
-            if (sensorList.size() > 0) {
-                accelerometerSensor = sensorList.get(0);
-                sensorManager.registerListener(accelerometerListener, accelerometerSensor, 2000);
-            } else {
-                Toast.makeText(MainService.this, "Device doesn't have a supported accelerometer sensor", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    private void unregisterAccelerator() {
-        try {
-            sensorManager.unregisterListener(accelerometerListener);
-        } catch (Exception ignored) {
         }
     }
 
@@ -311,12 +300,31 @@ public class MainService extends Service {
 
     private void darkenTheScreen(boolean state) {
         if (state && isGoOpen) {
+            try {
+                windowManager.removeView(black);
+            } catch (Exception ignored) {
+                Log.d("Receiver", "View is not attached");
+            }
             windowManager.addView(black, windowParams);
+            dimScreen(true);
             registerReceiver(screenReceiver, filter);
+            final TextView doubleTapToDismiss = new TextView(this);
+            doubleTapToDismiss.setText("Double tap to dismiss");
+            doubleTapToDismiss.setTextColor(Color.WHITE);
+            doubleTapToDismiss.setGravity(View.TEXT_ALIGNMENT_CENTER);
+            doubleTapToDismiss.setTextSize(TypedValue.COMPLEX_UNIT_SP, 72);
+            windowManager.addView(doubleTapToDismiss, windowParams);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    windowManager.removeView(doubleTapToDismiss);
+                }
+            }, 3000);
         } else {
             try {
                 windowManager.removeView(black);
                 unregisterScreenReceiver();
+                dimScreen(false);
             } catch (Exception ignored) {
                 Log.d("Receiver", "View is not attached");
             }
@@ -355,30 +363,4 @@ public class MainService extends Service {
         int plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
         return plugged == BatteryManager.BATTERY_PLUGGED_AC || plugged == BatteryManager.BATTERY_PLUGGED_USB;
     }
-
-    private SensorEventListener accelerometerListener = new SensorEventListener() {
-
-        @Override
-        public void onAccuracyChanged(Sensor arg0, int arg1) {
-        }
-
-        boolean isBlack;
-
-        @Override
-        public void onSensorChanged(SensorEvent arg0) {
-            float y_value = arg0.values[1];
-            if (y_value < -5 && y_value > -15) {
-                if (!isBlack) {
-                    isBlack = true;
-                    darkenTheScreen(true);
-                    dimScreen(true);
-                }
-            } else if (isBlack) {
-                isBlack = false;
-                darkenTheScreen(false);
-                dimScreen(false);
-            }
-        }
-    };
-
 }

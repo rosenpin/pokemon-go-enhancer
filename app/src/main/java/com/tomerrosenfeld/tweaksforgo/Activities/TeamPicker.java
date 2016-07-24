@@ -27,13 +27,13 @@ public class TeamPicker extends AppCompatActivity {
                     int theme = 0;
                     switch (finalI) {
                         case 0:
-                            theme = R.style.MysticTheme;
+                            theme = 1;
                             break;
                         case 1:
-                            theme = R.style.ValorTheme;
+                            theme = 2;
                             break;
                         case 2:
-                            theme = R.style.InstinctTheme;
+                            theme = 3;
                             break;
                     }
                     prefs.set(Prefs.setup, true);

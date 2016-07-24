@@ -101,7 +101,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void applyTheme() {
         try {
-            setTheme(prefs.getInt(Prefs.theme, prefs.getInt(Prefs.theme, R.style.AppTheme)));
+            int theme = prefs.getInt(Prefs.theme, 0);
+            if (theme <= 3 && theme >= 0)
+                setTheme(theme == 1 ? R.style.MysticTheme : (theme == 2 ? R.style.ValorTheme : (theme == 3 ? R.style.InstinctTheme : R.style.AppTheme)));
+            else
+                throw new Exception();
         } catch (Exception e) {
             e.printStackTrace();
             startActivity(new Intent(this, TeamPicker.class));

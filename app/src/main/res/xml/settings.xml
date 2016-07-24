@@ -1,9 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/settings_notifications">
+
+    <PreferenceCategory android:title="@string/settings_general">
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="show_fab"
+            android:summary="@string/settings_floating_menu_desc"
+            android:title="@string/settings_floating_menu" />
+    </PreferenceCategory>
     <PreferenceCategory android:title="@string/settings_battery_save">
         <SwitchPreference
             android:defaultValue="false"
+            android:dependency="show_fab"
             android:key="overlay"
             android:summary="@string/settings_overlay_desc"
             android:title="@string/settings_overlay" />
@@ -30,11 +39,6 @@
             android:key="keep_awake"
             android:summary="@string/settings_keep_screen_on_desc"
             android:title="@string/settings_keep_screen_on" />
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="show_fab"
-            android:summary="Show a floating menu with handy links"
-            android:title="Floating menu" />
         <SwitchPreference
             android:defaultValue="false"
             android:key="kill_background_processes"

@@ -9,8 +9,11 @@
     <string name="adb_command">adb shell pm grant com.tomerrosenfeld.tweaksforgo android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="share_command_title">Share the command to send it to your PC or a nerdy friend</string>
     <string name="how_to">ADB? How do I do that?</string>
+    <string name="thank_you">Thank you for your donation :)</string>
     <!--Menu-->
     <string name="menu_change_team">Change team</string>
+    <string name="menu_feedback">Feedback</string>
+    <string name="menu_about">About</string>
     <!--Intro-->
     <string name="intro_choose_your_team">Choose your team</string>
     <string name="intro_skip">Skip</string>
@@ -29,9 +32,11 @@
     <string name="settings_kill_background_processes">Kill background processes</string>
     <string name="settings_extreme_battery_saver">Extreme battery saver</string>
     <string name="settings_maximize_brightness">Maximize brightness</string>
+    <string name="settings_general">General</string>
+    <string name="settings_floating_menu">Floating menu</string>
     <!--Settings Descriptions-->
     <string name="settings_notifications_desc">Get notifications about new Pokemon around you. Click here to configure the notifications</string>
-    <string name="settings_overlay_desc">Overlay screen with a black view to save battery and disable touches. Recommended for devices with AMOLED screens.</string>
+    <string name="settings_overlay_desc">Click the first option in the floating menu to show a black view over the screen to save battery and disable touches. Recommended for devices with AMOLED screens. Black out the screen by clicking the first option in the floating menu. Hide it by double tapping the screen.</string>
     <string name="settings_dim_desc">Dim screen when overlay is active</string>
     <string name="settings_proximity_sensor_desc">Use the proximity sensor to detect if overlay will be shown</string>
     <string name="settings_keep_screen_on_desc">Keep the screen on while you are playing the game</string>
@@ -39,7 +44,5 @@
     <string name="settings_kill_background_processes_desc">Kill background processes when the game is launched to save battery and improve the apps performance (Recommended for devices with less than 2GB of ram)</string>
     <string name="settings_extreme_battery_saver_desc">Change location mode to battery saving to reduce battery consumption. This can cause lag in the game (requires root)</string>
     <string name="settings_maximize_brightness_desc">Maximize the screen brightness when the game start for better outdoor visibility</string>
-    <string name="menu_feedback">Feedback</string>
-    <string name="menu_about">About</string>
-    <string name="thank_you">Thank you for your donation :)</string>
+    <string name="settings_floating_menu_desc">Show a floating menu to toggle overlay and access handy links</string>
 </resources>
