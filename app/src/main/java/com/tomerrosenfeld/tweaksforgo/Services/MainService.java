@@ -83,9 +83,20 @@ public class MainService extends Service {
             int theme = prefs.getInt(Prefs.theme, 0);
             int color = theme == 1 ? R.color.colorPrimaryBlue : (theme == 2 ? R.color.colorPrimaryRed : (theme == 3 ? R.color.colorPrimaryYellow : R.color.colorPrimary));
             fab = LayoutInflater.from(this).inflate(R.layout.fab, null);
-            ((FloatingActionMenu) fab.findViewById(R.id.menu)).setMenuButtonColorNormal(color);
-            ((FloatingActionButton) fab.findViewById(R.id.pokevision)).setColorNormal(color);
-            ((FloatingActionButton) fab.findViewById(R.id.cp_counter)).setColorNormal(color);
+            ((FloatingActionMenu) fab.findViewById(R.id.menu)).setMenuButtonColorNormal(ContextCompat.getColor(this, color));
+            fab.findViewById(R.id.menu).setAlpha(0.8f);
+            ((FloatingActionMenu) fab.findViewById(R.id.menu)).setOnMenuToggleListener(new FloatingActionMenu.OnMenuToggleListener() {
+                @Override
+                public void onMenuToggle(boolean opened) {
+                    fab.findViewById(R.id.menu).setAlpha(fab.findViewById(R.id.menu).getAlpha() == 0.8f ? 1 : 0.8f);
+                }
+            });
+
+            ((FloatingActionButton) fab.findViewById(R.id.pokevision)).setColorNormal(ContextCompat.getColor(this, color));
+            ((FloatingActionButton) fab.findViewById(R.id.cp_counter)).setColorNormal(ContextCompat.getColor(this, color));
+            ((FloatingActionButton) fab.findViewById(R.id.lock_fab)).setColorNormal(ContextCompat.getColor(this, color));
+
+
             fab.findViewById(R.id.pokevision).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
