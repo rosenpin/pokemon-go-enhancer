@@ -22,6 +22,8 @@
     <!--Settings Category-->
     <string name="settings_battery_save">Battery saving</string>
     <string name="settings_enhancements">Enhancements</string>
+    <string name="settings_other">Other</string>
+    <string name="settings_general">General</string>
     <string name="settings_notifications">Notifications</string>
     <!--Settings Titles-->
     <string name="settings_overlay">Overlay screen</string>
@@ -32,7 +34,7 @@
     <string name="settings_kill_background_processes">Kill background processes</string>
     <string name="settings_extreme_battery_saver">Extreme battery saver</string>
     <string name="settings_maximize_brightness">Maximize brightness</string>
-    <string name="settings_general">General</string>
+    <string name="settings_persistent_notification">Persistent notification</string>
     <string name="settings_floating_menu">Floating menu</string>
     <!--Settings Descriptions-->
     <string name="settings_notifications_desc">Get notifications about new Pokemon around you. Click here to configure the notifications</string>
@@ -49,6 +51,7 @@
     <string name="settings_screen_off_proximity">Auto pocket mode</string>
     <string name="settings_floating_menu_position">Floating menu position</string>
     <string name="settings_floating_menu_position_desc">Choose where you want the floating menu to appear on the screen</string>
+    <string name="settings_persistent_notification_desc">Show a persistent notification to keep the app running in background</string>
 
     <string-array name="fab_position">
         <item>Top left</item>

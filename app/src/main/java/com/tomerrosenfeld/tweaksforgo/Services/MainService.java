@@ -1,6 +1,8 @@
 package com.tomerrosenfeld.tweaksforgo.Services;
 
 import android.app.ActivityManager;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.app.usage.UsageEvents;
 import android.app.usage.UsageStatsManager;
@@ -75,6 +77,7 @@ public class MainService extends Service {
         initScreenReceiver();
         initFloatingActionButton();
         checkIfGoIsCurrentApp();
+        createPersistentNotification();
     }
 
     private void initFloatingActionButton() {
@@ -128,7 +131,8 @@ public class MainService extends Service {
             if (state) {
                 try {
                     ((WindowManager) this.getSystemService(WINDOW_SERVICE)).removeView(fab);
-                }catch (Exception ignored){}
+                } catch (Exception ignored) {
+                }
                 ((WindowManager) this.getSystemService(WINDOW_SERVICE)).addView(fab, floatingActionMenuLP);
             } else
                 ((WindowManager) this.getSystemService(WINDOW_SERVICE)).removeView(fab);
@@ -139,6 +143,19 @@ public class MainService extends Service {
     private void initOriginalStates() {
         originalBrightness = Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, 80);
         originalBrightnessMode = Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE, Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC);
+    }
+
+    private void createPersistentNotification() {
+        if (prefs.getBoolean(Prefs.persistent_notification, true)) {
+            Notification.Builder builder = new Notification.Builder(getApplicationContext());
+            builder.setContentTitle("Enhancements for go is running");
+            builder.setOngoing(true);
+            builder.setPriority(Notification.PRIORITY_MIN);
+            builder.setSmallIcon(android.R.color.transparent);
+            Notification notification = builder.build();
+            NotificationManager notificationManger = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            notificationManger.notify(33, notification);
+        }
     }
 
     private void initScreenHolder() {
