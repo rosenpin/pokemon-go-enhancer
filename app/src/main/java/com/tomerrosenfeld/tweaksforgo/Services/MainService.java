@@ -57,6 +57,7 @@ public class MainService extends Service {
     private int originalLocationMode;
     private int originalBrightnessMode;
     private View fab;
+    private PowerManager.WakeLock proximityToTurnOff;
     private WindowManager.LayoutParams floatingActionMenuLP;
 
     @Nullable
@@ -178,8 +179,10 @@ public class MainService extends Service {
                     if (!isGoOpen)
                         GOLaunched();
                 } else {
-                    if (isGoOpen)
-                        GOClosed();
+                    if (event.getEventType() == UsageEvents.Event.MOVE_TO_FOREGROUND) {
+                        if (isGoOpen)
+                            GOClosed();
+                    }
                 }
             }
         } else {
@@ -346,11 +349,12 @@ public class MainService extends Service {
             doubleTapToDismiss.setGravity(View.TEXT_ALIGNMENT_CENTER);
             doubleTapToDismiss.setTextSize(TypedValue.COMPLEX_UNIT_SP, 72);
             windowManager.addView(doubleTapToDismiss, windowParams);
+            dimScreen(true);
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     windowManager.removeView(doubleTapToDismiss);
-                    dimScreen(true);
+
                 }
             }, 3000);
         } else {
@@ -363,8 +367,6 @@ public class MainService extends Service {
             }
         }
     }
-
-    PowerManager.WakeLock proximityToTurnOff;
 
     private void initProximityToLock(boolean state) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && prefs.getBoolean(Prefs.screen_of_proximity, true)) {
