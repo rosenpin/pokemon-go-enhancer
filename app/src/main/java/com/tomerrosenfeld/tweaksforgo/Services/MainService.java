@@ -107,7 +107,7 @@ public class MainService extends Service {
             fab.findViewById(R.id.cp_counter).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    loadChromeTabFromURL("http://pogotoolkit.com/");
+                    loadChromeTabFromURL("http://www.pidgeycalc.com/");
                 }
             });
             fab.findViewById(R.id.pokedex).setOnClickListener(new View.OnClickListener() {
