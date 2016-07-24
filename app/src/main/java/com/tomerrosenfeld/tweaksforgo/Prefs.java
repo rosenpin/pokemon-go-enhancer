@@ -15,6 +15,7 @@ public class Prefs {
     public static String extreme_battery_saver = "extreme_battery_saver";
     public static String maximize_brightness = "maximize_brightness";
     public static String showFAB = "show_fab";
+    public static String screen_of_proximity = "screen_of_proximity";
     SharedPreferences preferences;
 
     public Prefs(Context context) {

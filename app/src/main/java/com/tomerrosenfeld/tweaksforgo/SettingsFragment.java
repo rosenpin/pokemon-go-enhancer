@@ -79,6 +79,10 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         else if (shouldAllowMaximizeBrightness)
             ((TwoStatePreference) findPreference("maximize_brightness")).setChecked(true);
 
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            findPreference("screen_of_proximity").setEnabled(false);
+            ((TwoStatePreference) findPreference("screen_of_proximity")).setChecked(false);
+        }
         if (!hasModifySecurePermission())
             ((TwoStatePreference) findPreference("extreme_battery_saver")).setChecked(false);
     }

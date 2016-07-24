@@ -36,7 +36,7 @@
     <string name="settings_floating_menu">Floating menu</string>
     <!--Settings Descriptions-->
     <string name="settings_notifications_desc">Get notifications about new Pokemon around you. Click here to configure the notifications</string>
-    <string name="settings_overlay_desc">Click the first option in the floating menu to show a black view over the screen to save battery and disable touches. Recommended for devices with AMOLED screens. Black out the screen by clicking the first option in the floating menu. Hide it by double tapping the screen.</string>
+    <string name="settings_overlay_desc">Click the first option in the floating menu to show a black view over the screen to save battery and disable touches. Recommended for devices with AMOLED screens. Hide the overlay by double tapping the screen.</string>
     <string name="settings_dim_desc">Dim screen when overlay is active</string>
     <string name="settings_proximity_sensor_desc">Use the proximity sensor to detect if overlay will be shown</string>
     <string name="settings_keep_screen_on_desc">Keep the screen on while you are playing the game</string>
@@ -45,4 +45,6 @@
     <string name="settings_extreme_battery_saver_desc">Change location mode to battery saving to reduce battery consumption. This can cause lag in the game (requires root)</string>
     <string name="settings_maximize_brightness_desc">Maximize the screen brightness when the game start for better outdoor visibility</string>
     <string name="settings_floating_menu_desc">Show a floating menu to toggle overlay and access handy links</string>
+    <string name="settings_screen_off_proximity_desc">Turn off the display when you put the device in your pocket or cover the proximity sensor to save battery. (only for Android 5.0+)</string>
+    <string name="settings_screen_off_proximity">Auto pocket mode</string>
 </resources>

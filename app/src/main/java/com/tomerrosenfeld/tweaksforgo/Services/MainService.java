@@ -196,6 +196,7 @@ public class MainService extends Service {
             maximizeBrightness(true);
         if (prefs.getBoolean(Prefs.showFAB, false))
             showFAB(true);
+        initProximityToLock(true);
 
         setNotification(true);
         isGoOpen = true;
@@ -213,6 +214,8 @@ public class MainService extends Service {
             maximizeBrightness(false);
         if (prefs.getBoolean(Prefs.showFAB, false))
             showFAB(false);
+
+        initProximityToLock(false);
 
         setNotification(false);
         isGoOpen = false;
@@ -336,6 +339,19 @@ public class MainService extends Service {
             } catch (Exception ignored) {
                 Log.d("Receiver", "View is not attached");
             }
+        }
+    }
+
+    PowerManager.WakeLock proximityToTurnOff;
+
+    private void initProximityToLock(boolean state) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && prefs.getBoolean(Prefs.screen_of_proximity, true)) {
+            if (proximityToTurnOff == null)
+                proximityToTurnOff = ((PowerManager) getSystemService(Context.POWER_SERVICE)).newWakeLock(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK, "proximity to lock");
+            if (state)
+                proximityToTurnOff.acquire();
+            else if (proximityToTurnOff.isHeld())
+                proximityToTurnOff.release();
         }
     }
 
