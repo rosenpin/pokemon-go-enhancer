@@ -37,6 +37,7 @@ import com.github.clans.fab.FloatingActionMenu;
 import com.tomerrosenfeld.tweaksforgo.Activities.ChromeTabActivity;
 import com.tomerrosenfeld.tweaksforgo.Constants;
 import com.tomerrosenfeld.tweaksforgo.Globals;
+import com.tomerrosenfeld.tweaksforgo.PokemonGOListener;
 import com.tomerrosenfeld.tweaksforgo.Prefs;
 import com.tomerrosenfeld.tweaksforgo.R;
 import com.tomerrosenfeld.tweaksforgo.Receivers.ScreenReceiver;
@@ -44,7 +45,7 @@ import com.tomerrosenfeld.tweaksforgo.Receivers.ScreenReceiver;
 import java.io.IOException;
 import java.util.List;
 
-public class MainService extends Service {
+public class MainService extends Service implements PokemonGOListener {
     private Prefs prefs;
     private PowerManager.WakeLock wl;
     private boolean isGoOpen = false;
@@ -133,7 +134,9 @@ public class MainService extends Service {
 
     private void loadChromeTabFromURL(String url) {
         Globals.url = url;
-        startActivity(new Intent(getApplicationContext(), ChromeTabActivity.class));
+        Intent intent = new Intent(getApplicationContext(), ChromeTabActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 
     private void showFAB(boolean state) {
@@ -187,11 +190,11 @@ public class MainService extends Service {
                 Log.d("Current app", event.getPackageName());
                 if (event.getPackageName().equals(Constants.GOPackageName)) {
                     if (!isGoOpen)
-                        GOLaunched();
+                        onStart();
                 } else {
                     if (event.getEventType() == UsageEvents.Event.MOVE_TO_FOREGROUND) {
                         if (isGoOpen)
-                            GOClosed();
+                            onStop();
                     }
                 }
             }
@@ -201,10 +204,10 @@ public class MainService extends Service {
             ComponentName componentInfo = taskInfo.get(0).topActivity;
             if (componentInfo.getPackageName().equals(Constants.GOPackageName)) {
                 if (!isGoOpen)
-                    GOLaunched();
+                    onStart();
             } else {
                 if (isGoOpen)
-                    GOClosed();
+                    onStop();
             }
         }
         new Handler().postDelayed(new Runnable() {
@@ -213,48 +216,6 @@ public class MainService extends Service {
                 checkIfGoIsCurrentApp();
             }
         }, 1000);
-    }
-
-    private void GOLaunched() {
-        Log.d(MainService.class.getSimpleName(), "GO launched");
-        if (prefs.getBoolean(Prefs.batterySaver, false))
-            setBatterySaver(true);
-        if (prefs.getBoolean(Prefs.keepAwake, true))
-            wl.acquire();
-        if (prefs.getBoolean(Prefs.kill_background_processes, false))
-            killBackgroundProcesses();
-        if (prefs.getBoolean(Prefs.extreme_battery_saver, false)) {
-            Settings.Secure.putInt(getContentResolver(), "accessibility_display_daltonizer_enabled", 1);
-            originalLocationMode = Settings.Secure.getInt(getContentResolver(), Settings.Secure.LOCATION_MODE, 0);
-            extremeBatterySaver(true);
-        }
-        if (prefs.getBoolean(Prefs.maximize_brightness, false))
-            maximizeBrightness(true);
-        if (prefs.getBoolean(Prefs.showFAB, false))
-            showFAB(true);
-        initProximityToLock(true);
-
-        setNotification(true);
-        isGoOpen = true;
-    }
-
-    private void GOClosed() {
-        Log.d(MainService.class.getSimpleName(), "GO closed");
-        if (prefs.getBoolean(Prefs.batterySaver, false))
-            setBatterySaver(false);
-        if (wl.isHeld())
-            wl.release();
-        if (prefs.getBoolean(Prefs.extreme_battery_saver, false) && originalLocationMode != 2)
-            extremeBatterySaver(false);
-        if (prefs.getBoolean(Prefs.maximize_brightness, false))
-            maximizeBrightness(false);
-        if (prefs.getBoolean(Prefs.showFAB, false))
-            showFAB(false);
-
-        initProximityToLock(false);
-
-        setNotification(false);
-        isGoOpen = false;
     }
 
     private void initScreenReceiver() {
@@ -427,5 +388,49 @@ public class MainService extends Service {
         assert intent != null;
         int plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
         return plugged == BatteryManager.BATTERY_PLUGGED_AC || plugged == BatteryManager.BATTERY_PLUGGED_USB;
+    }
+
+    @Override
+    public void onStart() {
+        Log.d(MainService.class.getSimpleName(), "GO launched");
+        if (prefs.getBoolean(Prefs.batterySaver, false))
+            setBatterySaver(true);
+        if (prefs.getBoolean(Prefs.keepAwake, true))
+            wl.acquire();
+        if (prefs.getBoolean(Prefs.kill_background_processes, false))
+            killBackgroundProcesses();
+        if (prefs.getBoolean(Prefs.extreme_battery_saver, false)) {
+            Settings.Secure.putInt(getContentResolver(), "accessibility_display_daltonizer_enabled", 1);
+            originalLocationMode = Settings.Secure.getInt(getContentResolver(), Settings.Secure.LOCATION_MODE, 0);
+            extremeBatterySaver(true);
+        }
+        if (prefs.getBoolean(Prefs.maximize_brightness, false))
+            maximizeBrightness(true);
+        if (prefs.getBoolean(Prefs.showFAB, false))
+            showFAB(true);
+        initProximityToLock(true);
+
+        setNotification(true);
+        isGoOpen = true;
+    }
+
+    @Override
+    public void onStop() {
+        Log.d(MainService.class.getSimpleName(), "GO closed");
+        if (prefs.getBoolean(Prefs.batterySaver, false))
+            setBatterySaver(false);
+        if (wl.isHeld())
+            wl.release();
+        if (prefs.getBoolean(Prefs.extreme_battery_saver, false) && originalLocationMode != 2)
+            extremeBatterySaver(false);
+        if (prefs.getBoolean(Prefs.maximize_brightness, false))
+            maximizeBrightness(false);
+        if (prefs.getBoolean(Prefs.showFAB, false))
+            showFAB(false);
+
+        initProximityToLock(false);
+
+        setNotification(false);
+        isGoOpen = false;
     }
 }
