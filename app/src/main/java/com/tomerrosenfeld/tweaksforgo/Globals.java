@@ -4,6 +4,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 
+import java.util.ArrayList;
+
 public class Globals {
     public static LinearLayout blackLayout;
     public static int toolbarColor;
@@ -11,4 +13,5 @@ public class Globals {
     public static WindowManager windowManager;
     public static LinearLayout black;
     public static String url;
+    public static ArrayList<String> ownedItems;
 }

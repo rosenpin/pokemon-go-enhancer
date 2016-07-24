@@ -224,6 +224,7 @@ public class MainService extends Service {
         if (prefs.getBoolean(Prefs.kill_background_processes, false))
             killBackgroundProcesses();
         if (prefs.getBoolean(Prefs.extreme_battery_saver, false)) {
+            Settings.Secure.putInt(getContentResolver(), "accessibility_display_daltonizer_enabled", 1);
             originalLocationMode = Settings.Secure.getInt(getContentResolver(), Settings.Secure.LOCATION_MODE, 0);
             extremeBatterySaver(true);
         }
@@ -331,10 +332,13 @@ public class MainService extends Service {
 
     private void extremeBatterySaver(boolean state) {
         try {
-            if (state)
+            if (state) {
                 Settings.Secure.putInt(getContentResolver(), Settings.Secure.LOCATION_MODE, Settings.Secure.LOCATION_MODE_BATTERY_SAVING);
-            else
+                Settings.Secure.putInt(getContentResolver(), "accessibility_display_daltonizer", 0);
+            } else {
                 Settings.Secure.putInt(getContentResolver(), Settings.Secure.LOCATION_MODE, originalLocationMode);
+                Settings.Secure.putInt(getContentResolver(), "accessibility_display_daltonizer", -1);
+            }
         } catch (Exception ignored) {
             prefs.set(Prefs.extreme_battery_saver, false);
         }

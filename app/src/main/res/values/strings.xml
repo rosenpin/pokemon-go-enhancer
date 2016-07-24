@@ -44,7 +44,7 @@
     <string name="settings_keep_screen_on_desc">Keep the screen on while you are playing the game</string>
     <string name="settings_battery_saver_desc">Start battery saver automatically when the game starts (requires root)</string>
     <string name="settings_kill_background_processes_desc">Kill background processes when the game is launched to save battery and improve the apps performance (Recommended for devices with less than 2GB of ram)</string>
-    <string name="settings_extreme_battery_saver_desc">Change location mode to battery saving to reduce battery consumption. This can cause lag in the game (requires root)</string>
+    <string name="settings_extreme_battery_saver_desc">Make the display monochrome and set the location mode to battery saving to reduce battery consumption. Very recommended for AMOLED devices.</string>
     <string name="settings_maximize_brightness_desc">Maximize the screen brightness when the game start for better outdoor visibility</string>
     <string name="settings_floating_menu_desc">Show a floating menu to toggle overlay and access handy links</string>
     <string name="settings_screen_off_proximity_desc">Turn off the display when you put the device in your pocket or cover the proximity sensor to save battery. (only for Android 5.0+)</string>
@@ -52,6 +52,8 @@
     <string name="settings_floating_menu_position">Floating menu position</string>
     <string name="settings_floating_menu_position_desc">Choose where you want the floating menu to appear on the screen</string>
     <string name="settings_persistent_notification_desc">Show a persistent notification to keep the app running in background</string>
+    <string name="requires_support">Supporters only</string>
+    <string name="requires_support_desc">This feature is for supporters only, please consider making a small donation to unlock this feature and motivate me to work on the app :)</string>
 
     <string-array name="fab_position">
         <item>Top left</item>

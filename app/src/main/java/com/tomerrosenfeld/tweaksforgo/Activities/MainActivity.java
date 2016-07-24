@@ -25,6 +25,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.android.vending.billing.IInAppBillingService;
 import com.tomerrosenfeld.tweaksforgo.ContextUtils;
@@ -34,11 +35,9 @@ import com.tomerrosenfeld.tweaksforgo.R;
 import com.tomerrosenfeld.tweaksforgo.SecretConstants;
 import com.tomerrosenfeld.tweaksforgo.SettingsFragment;
 
-import java.util.ArrayList;
-
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     Prefs prefs;
-    private IInAppBillingService mService;
+    private static IInAppBillingService mService;
 
     ServiceConnection mServiceConn = new ServiceConnection() {
         @Override
@@ -49,15 +48,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mService = IInAppBillingService.Stub.asInterface(service);
-            ArrayList<String> ownedItems = null;
+            Globals.ownedItems = null;
             try {
-                ownedItems = mService.getPurchases(3, getPackageName(), "inapp", null).getStringArrayList("INAPP_PURCHASE_ITEM_LIST");
+                Globals.ownedItems = mService.getPurchases(3, getPackageName(), "inapp", null).getStringArrayList("INAPP_PURCHASE_ITEM_LIST");
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
             boolean supported = false;
-            if (ownedItems != null)
-                if (ownedItems.size() > 0)
+            if (Globals.ownedItems != null)
+                if (Globals.ownedItems.size() > 0)
                     supported = true;
             setUpDonateButton(supported);
         }
@@ -97,7 +96,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.donate).setBackgroundColor(color);
         findViewById(R.id.donate).setOnClickListener(this);
     }
-
 
     private void applyTheme() {
         try {
@@ -207,8 +205,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(MainActivity.class.getSimpleName(), "Purchase");
-        Snackbar.make(findViewById(android.R.id.content), R.string.thank_you, Snackbar.LENGTH_LONG).show();
+        if (requestCode == 1001) {
+            Log.d("Purchase state", String.valueOf(resultCode));
+            if (resultCode == RESULT_OK) {
+                Log.d(MainActivity.class.getSimpleName(), "Purchase");
+                Toast.makeText(this, R.string.thank_you, Toast.LENGTH_LONG).show();
+                startActivity(new Intent(MainActivity.this,MainActivity.class));
+                finish();
+            }
+        }
     }
 
     @Override
@@ -218,5 +223,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             unbindService(mServiceConn);
         } catch (Exception ignored) {
         }
+    }
+
+    public static void promptSupport(final Activity activity) {
+        new AlertDialog.Builder(activity).setTitle(activity.getString(R.string.requires_support))
+                .setMessage(R.string.requires_support_desc)
+                .setPositiveButton("Support", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        try {
+                            Bundle buyIntentBundle = mService.getBuyIntent(3, activity.getPackageName(),
+                                    SecretConstants.getPropertyValue(activity.getApplicationContext(), "IAPID"), "inapp", SecretConstants.getPropertyValue(activity.getApplicationContext(), "googleIAPCode"));
+                            PendingIntent pendingIntent = buyIntentBundle.getParcelable("BUY_INTENT");
+                            assert pendingIntent != null;
+                            activity.startIntentSenderForResult(pendingIntent.getIntentSender(), 1001, new Intent(), 0, 0, 0);
+                        } catch (IntentSender.SendIntentException | RemoteException e) {
+                            Toast.makeText(activity, "Error, please restart the app", Toast.LENGTH_SHORT).show();
+                            e.printStackTrace();
+                        }
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                })
+                .show();
     }
 }
