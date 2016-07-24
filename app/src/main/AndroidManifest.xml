@@ -41,6 +41,8 @@
             android:name=".Activities.ReporterActivity"
             android:theme="@style/ReporterTheme" />
 
+        <activity android:name=".Activities.ChromeTabActivity"/>
+
         <receiver android:name=".Receivers.BootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

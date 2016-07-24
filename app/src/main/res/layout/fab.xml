@@ -13,6 +13,13 @@
     android:layout_marginRight="10dp">
 
     <com.github.clans.fab.FloatingActionButton
+        android:id="@+id/pokedex"
+        fab:fab_size="mini"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_pokedex" />
+
+    <com.github.clans.fab.FloatingActionButton
         android:id="@+id/pokevision"
         fab:fab_size="mini"
         android:layout_width="wrap_content"

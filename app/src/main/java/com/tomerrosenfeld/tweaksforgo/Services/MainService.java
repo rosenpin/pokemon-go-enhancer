@@ -34,8 +34,8 @@ import android.widget.TextView;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
+import com.tomerrosenfeld.tweaksforgo.Activities.ChromeTabActivity;
 import com.tomerrosenfeld.tweaksforgo.Constants;
-import com.tomerrosenfeld.tweaksforgo.ContextUtils;
 import com.tomerrosenfeld.tweaksforgo.Globals;
 import com.tomerrosenfeld.tweaksforgo.Prefs;
 import com.tomerrosenfeld.tweaksforgo.R;
@@ -48,8 +48,6 @@ public class MainService extends Service {
     private Prefs prefs;
     private PowerManager.WakeLock wl;
     private boolean isGoOpen = false;
-    private WindowManager windowManager;
-    private LinearLayout black;
     private WindowManager.LayoutParams windowParams;
     private ScreenReceiver screenReceiver;
     private IntentFilter filter;
@@ -98,19 +96,27 @@ public class MainService extends Service {
             ((FloatingActionButton) fab.findViewById(R.id.pokevision)).setColorNormal(ContextCompat.getColor(this, color));
             ((FloatingActionButton) fab.findViewById(R.id.cp_counter)).setColorNormal(ContextCompat.getColor(this, color));
             ((FloatingActionButton) fab.findViewById(R.id.lock_fab)).setColorNormal(ContextCompat.getColor(this, color));
-
+            ((FloatingActionButton) fab.findViewById(R.id.pokedex)).setColorNormal(ContextCompat.getColor(this, color));
+            floatingActionMenuLP = new WindowManager.LayoutParams(100, 100, WindowManager.LayoutParams.TYPE_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH, PixelFormat.TRANSLUCENT);
             fab.findViewById(R.id.pokevision).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ContextUtils.openUrl(MainService.this, "https://pokevision.com/");
+                    loadChromeTabFromURL("https://pokevision.com/");
                 }
             });
             fab.findViewById(R.id.cp_counter).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ContextUtils.openUrl(MainService.this, "http://pogotoolkit.com/");
+                    loadChromeTabFromURL("http://pogotoolkit.com/");
                 }
             });
+            fab.findViewById(R.id.pokedex).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    loadChromeTabFromURL("http://www.pokemon.com/us/pokedex/");
+                }
+            });
+
             fab.findViewById(R.id.lock_fab).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -120,10 +126,14 @@ public class MainService extends Service {
             if (!prefs.getBoolean(Prefs.overlay, false)) {
                 ((FloatingActionMenu) fab.findViewById(R.id.menu)).removeMenuButton((FloatingActionButton) fab.findViewById(R.id.lock_fab));
             }
-            floatingActionMenuLP = new WindowManager.LayoutParams(100, 100, WindowManager.LayoutParams.TYPE_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH, PixelFormat.TRANSLUCENT);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void loadChromeTabFromURL(String url) {
+        Globals.url = url;
+        startActivity(new Intent(getApplicationContext(), ChromeTabActivity.class));
     }
 
     private void showFAB(boolean state) {
@@ -260,15 +270,17 @@ public class MainService extends Service {
     }
 
     private void initWindowManager() {
-        windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        if (Globals.windowManager == null)
+            Globals.windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         windowParams = new WindowManager.LayoutParams(-1, -1, 2003, 65794, -2);
         windowParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
     }
 
     private void initAccelerometer() {
         if (prefs.getBoolean(Prefs.overlay, false) || prefs.getBoolean(Prefs.dim, false)) {
-            black = new LinearLayout(getApplicationContext());
-            black.setOnTouchListener(new View.OnTouchListener() {
+            if (Globals.black == null)
+                Globals.black = new LinearLayout(getApplicationContext());
+            Globals.black.setOnTouchListener(new View.OnTouchListener() {
                 private GestureDetector gestureDetector = new GestureDetector(MainService.this, new GestureDetector.SimpleOnGestureListener() {
                     @Override
                     public boolean onDoubleTap(MotionEvent e) {
@@ -284,9 +296,9 @@ public class MainService extends Service {
                     return true;
                 }
             });
-            black.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-            black.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), android.R.color.black));
-            Globals.blackLayout = black;
+            Globals.black.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            Globals.black.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), android.R.color.black));
+            Globals.blackLayout = Globals.black;
         }
     }
 
@@ -337,29 +349,29 @@ public class MainService extends Service {
     private void darkenTheScreen(boolean state) {
         if (state) {
             try {
-                windowManager.removeView(black);
+                Globals.windowManager.removeView(Globals.black);
             } catch (Exception ignored) {
                 Log.d("Receiver", "View is not attached");
             }
-            windowManager.addView(black, windowParams);
+            Globals.windowManager.addView(Globals.black, windowParams);
             registerReceiver(screenReceiver, filter);
             final TextView doubleTapToDismiss = new TextView(this);
             doubleTapToDismiss.setText("Double tap to dismiss");
             doubleTapToDismiss.setTextColor(Color.WHITE);
             doubleTapToDismiss.setGravity(View.TEXT_ALIGNMENT_CENTER);
             doubleTapToDismiss.setTextSize(TypedValue.COMPLEX_UNIT_SP, 72);
-            windowManager.addView(doubleTapToDismiss, windowParams);
+            Globals.windowManager.addView(doubleTapToDismiss, windowParams);
             dimScreen(true);
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    windowManager.removeView(doubleTapToDismiss);
+                    Globals.windowManager.removeView(doubleTapToDismiss);
 
                 }
             }, 3000);
         } else {
             try {
-                windowManager.removeView(black);
+                Globals.windowManager.removeView(Globals.black);
                 unregisterScreenReceiver();
                 dimScreen(false);
             } catch (Exception ignored) {
