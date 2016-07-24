@@ -1,5 +1,6 @@
 package com.tomerrosenfeld.tweaksforgo;
 
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -41,6 +42,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         findPreference("extreme_battery_saver").setOnPreferenceChangeListener(this);
         findPreference("maximize_brightness").setOnPreferenceChangeListener(this);
         findPreference("show_fab").setOnPreferenceChangeListener(this);
+        findPreference("persistent_notification").setOnPreferenceChangeListener(this);
         mainServiceIntent = new Intent(getActivity(), MainService.class);
         restartService();
     }
@@ -273,6 +275,12 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                     }
                 }, false, "change system settings");
                 return false;
+            }
+        }
+        if (preference.getKey().equals("persistent_notification")) {
+            if (!(boolean) o) {
+                NotificationManager notificationManger = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+                notificationManger.cancel(33);
             }
         }
         restartService();
