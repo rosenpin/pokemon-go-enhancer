@@ -15,9 +15,15 @@ public class ChromeTabActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chrome_tabs);
-        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-        CustomTabsIntent customTabsIntent = builder.build();
-        customTabsIntent.launchUrl(ChromeTabActivity.this, Uri.parse(Globals.url));
+        if (Globals.url != null) {
+            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+            CustomTabsIntent customTabsIntent = builder.build();
+
+            customTabsIntent.launchUrl(ChromeTabActivity.this, Uri.parse(Globals.url));
+        } else {
+            startActivity(getPackageManager().getLaunchIntentForPackage(Constants.GOPackageName));
+            finish();
+        }
     }
 
     boolean firstLaunch = true;
