@@ -423,8 +423,11 @@ public class MainService extends Service implements PokemonGOListener {
                 for (UsageStats usageStats : appList) {
                     mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
                 }
-                if (!mySortedMap.isEmpty())
-                    return mySortedMap.get(mySortedMap.lastKey()).getPackageName().equals(Constants.GOPackageName);
+                if (!mySortedMap.isEmpty()) {
+                    Log.d(MainService.class.getSimpleName(), mySortedMap.get(mySortedMap.lastKey()).getPackageName());
+                    String currentAppName = mySortedMap.get(mySortedMap.lastKey()).getPackageName();
+                    return (currentAppName.equals("com.tomer.poke.notifier") || currentAppName.equals(getPackageName())) ? isGoOpen : currentAppName.equals(Constants.GOPackageName);
+                }
             }
         } else {
             ActivityManager am = (ActivityManager) getBaseContext().getSystemService(ACTIVITY_SERVICE);
