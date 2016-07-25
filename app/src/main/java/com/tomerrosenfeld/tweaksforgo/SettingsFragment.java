@@ -260,7 +260,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
                     return false;
                 }
             }
-            if (Globals.ownedItems == null || Globals.ownedItems.size() == 0) {
+            if ((Globals.ownedItems == null || Globals.ownedItems.size() == 0)&&!BuildConfig.DEBUG) {
                 MainActivity.promptSupport(getActivity());
                 return false;
             }
