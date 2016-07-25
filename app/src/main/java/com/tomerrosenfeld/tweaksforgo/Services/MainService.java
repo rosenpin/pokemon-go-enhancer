@@ -4,7 +4,7 @@ import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
-import android.app.usage.UsageEvents;
+import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -44,6 +44,8 @@ import com.tomerrosenfeld.tweaksforgo.Receivers.ScreenReceiver;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class MainService extends Service implements PokemonGOListener {
     private Prefs prefs;
@@ -76,8 +78,8 @@ public class MainService extends Service implements PokemonGOListener {
         initScreenHolder();
         initScreenReceiver();
         initFloatingActionButton();
-        checkIfGoIsCurrentApp();
         createPersistentNotification();
+        updateCurrentApp();
     }
 
     private void initFloatingActionButton() {
@@ -141,17 +143,11 @@ public class MainService extends Service implements PokemonGOListener {
 
     private void showFAB(boolean state) {
         floatingActionMenuLP.gravity = Integer.parseInt(prefs.getString(Prefs.fab_position, "51"));
-        try {
-            if (state) {
-                try {
-                    ((WindowManager) this.getSystemService(WINDOW_SERVICE)).removeView(fab);
-                } catch (Exception ignored) {
-                }
+        if (state) {
+            if (fab.getWindowToken() == null)
                 ((WindowManager) this.getSystemService(WINDOW_SERVICE)).addView(fab, floatingActionMenuLP);
-            } else
-                ((WindowManager) this.getSystemService(WINDOW_SERVICE)).removeView(fab);
-        } catch (Exception ignored) {
-        }
+        } else if (fab.getWindowToken() != null)
+            ((WindowManager) this.getSystemService(WINDOW_SERVICE)).removeView(fab);
     }
 
     private void initOriginalStates() {
@@ -174,48 +170,6 @@ public class MainService extends Service implements PokemonGOListener {
 
     private void initScreenHolder() {
         wl = ((PowerManager) getSystemService(Context.POWER_SERVICE)).newWakeLock(PowerManager.FULL_WAKE_LOCK, "Tweaks For GO Tag");
-    }
-
-    private void checkIfGoIsCurrentApp() {
-        Log.d(MainService.class.getSimpleName(), "Checking current app");
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            final long INTERVAL = 1000;
-            final long end = System.currentTimeMillis();
-            final long begin = end - INTERVAL;
-            UsageStatsManager manager = (UsageStatsManager) getSystemService(USAGE_STATS_SERVICE);
-            final UsageEvents usageEvents = manager.queryEvents(begin, end);
-            while (usageEvents.hasNextEvent()) {
-                UsageEvents.Event event = new UsageEvents.Event();
-                usageEvents.getNextEvent(event);
-                Log.d("Current app", event.getPackageName());
-                if (event.getPackageName().equals(Constants.GOPackageName)) {
-                    if (!isGoOpen)
-                        onStart();
-                } else {
-                    if (event.getEventType() == UsageEvents.Event.MOVE_TO_FOREGROUND) {
-                        if (isGoOpen)
-                            onStop();
-                    }
-                }
-            }
-        } else {
-            ActivityManager am = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
-            List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
-            ComponentName componentInfo = taskInfo.get(0).topActivity;
-            if (componentInfo.getPackageName().equals(Constants.GOPackageName)) {
-                if (!isGoOpen)
-                    onStart();
-            } else {
-                if (isGoOpen)
-                    onStop();
-            }
-        }
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                checkIfGoIsCurrentApp();
-            }
-        }, 1000);
     }
 
     private void initScreenReceiver() {
@@ -391,6 +345,30 @@ public class MainService extends Service implements PokemonGOListener {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        onStop();
+    }
+
+    private void updateCurrentApp() {
+        Log.d(MainService.class.getSimpleName(), "Updating");
+        Log.d(MainService.class.getSimpleName(), "Is GO running " + String.valueOf(isGoRunning()));
+        if (isGoRunning() && !isGoOpen) {
+            isGoOpen = true;
+            onStart();
+        } else if (!isGoRunning() && isGoOpen) {
+            isGoOpen = false;
+            onStop();
+        }
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                updateCurrentApp();
+            }
+        }, REFRESH_INTERVAL);
+    }
+
+    @Override
     public void onStart() {
         Log.d(MainService.class.getSimpleName(), "GO launched");
         if (prefs.getBoolean(Prefs.batterySaver, false))
@@ -421,7 +399,7 @@ public class MainService extends Service implements PokemonGOListener {
             setBatterySaver(false);
         if (wl.isHeld())
             wl.release();
-        if (prefs.getBoolean(Prefs.extreme_battery_saver, false) && originalLocationMode != 2)
+        if (prefs.getBoolean(Prefs.extreme_battery_saver, false))
             extremeBatterySaver(false);
         if (prefs.getBoolean(Prefs.maximize_brightness, false))
             maximizeBrightness(false);
@@ -433,4 +411,26 @@ public class MainService extends Service implements PokemonGOListener {
         setNotification(false);
         isGoOpen = false;
     }
+
+    @Override
+    public boolean isGoRunning() {
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            UsageStatsManager usm = (UsageStatsManager) getSystemService(USAGE_STATS_SERVICE);
+            long time = System.currentTimeMillis();
+            List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, time - REFRESH_INTERVAL * REFRESH_INTERVAL, time);
+            if (appList != null && appList.size() > 0) {
+                SortedMap<Long, UsageStats> mySortedMap = new TreeMap<>();
+                for (UsageStats usageStats : appList) {
+                    mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
+                }
+                if (!mySortedMap.isEmpty())
+                    return mySortedMap.get(mySortedMap.lastKey()).getPackageName().equals(Constants.GOPackageName);
+            }
+        } else {
+            ActivityManager am = (ActivityManager) getBaseContext().getSystemService(ACTIVITY_SERVICE);
+            return am.getRunningTasks(1).get(0).topActivity.getPackageName().equals(Constants.GOPackageName);
+        }
+        return isGoOpen;
+    }
+
 }

@@ -18,7 +18,7 @@ public class Prefs {
     public static String screen_of_proximity = "screen_of_proximity";
     public static String fab_position = "fab_position";
     public static String persistent_notification = "persistent_notification";
-    SharedPreferences preferences;
+    private SharedPreferences preferences;
 
     public Prefs(Context context) {
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
