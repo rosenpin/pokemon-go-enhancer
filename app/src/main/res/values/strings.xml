@@ -3,6 +3,8 @@
     <!--Actions-->
     <string name="action_support_the_development">Support the development</string>
     <!--Dialog and messages-->
+    <string name="requires_support">Supporters only</string>
+    <string name="requires_support_desc">This feature is for supporters only, please consider making a small donation to unlock this feature and motivate me to work on the app :)</string>
     <string name="root_workaround">Non root workaround!</string>
     <string name="root_workaround_desc">If your device isn\'t rooted, you can manually grant the required permission by executing the following ADB command from your PC (the command is one line)  \'adb shell pm grant com.tomerrosenfeld.tweaksforgo android.permission.WRITE_SECURE_SETTINGS\'  Once you have done that, the app should work properly.</string>
     <string name="share_command">Share command</string>
@@ -25,6 +27,7 @@
     <string name="settings_other">Other</string>
     <string name="settings_general">General</string>
     <string name="settings_notifications">Notifications</string>
+    <string name="settings_about">About</string>
     <!--Settings Titles-->
     <string name="settings_overlay">Overlay screen</string>
     <string name="settings_dim">Dim screen</string>
@@ -36,6 +39,7 @@
     <string name="settings_maximize_brightness">Maximize brightness</string>
     <string name="settings_persistent_notification">Persistent notification</string>
     <string name="settings_floating_menu">Floating menu</string>
+    <string name="settings_translate">Translate</string>
     <!--Settings Descriptions-->
     <string name="settings_notifications_desc">Get notifications about new Pokemon around you. Click here to configure the notifications</string>
     <string name="settings_overlay_desc">Click the first option in the floating menu to show a black view over the screen to save battery and disable touches. Recommended for devices with AMOLED screens. Hide the overlay by double tapping the screen.</string>
@@ -52,8 +56,7 @@
     <string name="settings_floating_menu_position">Floating menu position</string>
     <string name="settings_floating_menu_position_desc">Choose where you want the floating menu to appear on the screen</string>
     <string name="settings_persistent_notification_desc">Show a persistent notification to keep the app running in background</string>
-    <string name="requires_support">Supporters only</string>
-    <string name="requires_support_desc">This feature is for supporters only, please consider making a small donation to unlock this feature and motivate me to work on the app :)</string>
+    <string name="settings_translate_desc">Help translating the app to your language</string>
 
     <string-array name="fab_position">
         <item>Top left</item>

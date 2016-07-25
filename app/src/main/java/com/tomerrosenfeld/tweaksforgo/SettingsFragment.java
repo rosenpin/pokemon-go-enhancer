@@ -24,7 +24,7 @@ import com.tomerrosenfeld.tweaksforgo.Services.MainService;
 import java.io.IOException;
 import java.util.List;
 
-public class SettingsFragment extends PreferenceFragment implements Preference.OnPreferenceChangeListener {
+public class SettingsFragment extends PreferenceFragment implements Preference.OnPreferenceChangeListener, Preference.OnPreferenceClickListener {
     boolean shouldAllowOverlay;
     boolean shouldAllowDim;
     private boolean shouldAllowMaximizeBrightness;
@@ -43,6 +43,7 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         findPreference("maximize_brightness").setOnPreferenceChangeListener(this);
         findPreference("show_fab").setOnPreferenceChangeListener(this);
         findPreference("persistent_notification").setOnPreferenceChangeListener(this);
+        findPreference("translate").setOnPreferenceClickListener(this);
         mainServiceIntent = new Intent(getActivity(), MainService.class);
         restartService();
     }
@@ -289,5 +290,12 @@ public class SettingsFragment extends PreferenceFragment implements Preference.O
         }
         restartService();
         return true;
+    }
+
+    @Override
+    public boolean onPreferenceClick(Preference preference) {
+        if (preference.getKey().equals("translate"))
+            ContextUtils.openUrl(getActivity().getApplicationContext(),"https://crowdin.com/project/enhancements-for-go");
+        return false;
     }
 }

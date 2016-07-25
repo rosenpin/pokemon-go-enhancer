@@ -74,5 +74,13 @@
             android:summary="@string/settings_persistent_notification_desc"
             android:title="@string/settings_persistent_notification" />
     </PreferenceCategory>
+    <PreferenceCategory android:title="@string/settings_about">
+        <Preference
+            android:key="translate"
+            android:summary="@string/settings_translate_desc"
+            android:title="@string/settings_translate">
+
+        </Preference>
+    </PreferenceCategory>
 </PreferenceScreen>
 
