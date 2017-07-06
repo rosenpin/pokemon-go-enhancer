@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import java.util.Map;
+
 public class Prefs {
     public static String batterySaver = "battery_saver";
     public static String keepAwake = "keep_awake";
@@ -50,5 +52,17 @@ public class Prefs {
 
     public void apply(Context context) {
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
+    }
+
+    public String[][] toArray() {
+        String[][] list = new String[preferences.getAll().size()][2];
+        Map<String, ?> prefs = preferences.getAll();
+        int i = 0;
+        for (Map.Entry<String, ?> entry : prefs.entrySet()) {
+            list[i][0] = entry.getKey();
+            list[i][1] = entry.getValue().toString();
+            i++;
+        }
+        return list;
     }
 }

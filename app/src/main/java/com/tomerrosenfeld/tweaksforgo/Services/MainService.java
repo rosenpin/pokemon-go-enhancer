@@ -24,6 +24,7 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -34,8 +35,8 @@ import android.widget.TextView;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
-import com.tomerrosenfeld.tweaksforgo.Activities.ChromeTabActivity;
 import com.tomerrosenfeld.tweaksforgo.Constants;
+import com.tomerrosenfeld.tweaksforgo.FloatingWebView;
 import com.tomerrosenfeld.tweaksforgo.Globals;
 import com.tomerrosenfeld.tweaksforgo.PokemonGOListener;
 import com.tomerrosenfeld.tweaksforgo.Prefs;
@@ -104,19 +105,19 @@ public class MainService extends Service implements PokemonGOListener {
             fab.findViewById(R.id.pokevision).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    loadChromeTabFromURL("https://pokevision.com/");
+                    showWebView("https://pokevision.com/");
                 }
             });
             fab.findViewById(R.id.cp_counter).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    loadChromeTabFromURL("http://www.pidgeycalc.com/");
+                    showWebView("http://www.pidgeycalc.com/");
                 }
             });
             fab.findViewById(R.id.pokedex).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    loadChromeTabFromURL("http://www.pokemon.com/us/pokedex/");
+                    showWebView("http://www.pokemon.com/us/pokedex/");
                 }
             });
 
@@ -134,11 +135,21 @@ public class MainService extends Service implements PokemonGOListener {
         }
     }
 
-    private void loadChromeTabFromURL(String url) {
+    private void showWebView(String url) {
         Globals.url = url;
-        Intent intent = new Intent(getApplicationContext(), ChromeTabActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
+        Globals.floatingWebView = new FloatingWebView(this);
+        Globals.floatingWebView.loadUrl(url);
+        Globals.floatingWebView.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+                    return true;
+                }
+                return false;
+            }
+        });
+        WindowManager.LayoutParams webViewLP = new WindowManager.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.TYPE_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH | WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, PixelFormat.TRANSLUCENT);
+        Globals.windowManager.addView(Globals.floatingWebView, webViewLP);
     }
 
     private void showFAB(boolean state) {
@@ -351,8 +362,6 @@ public class MainService extends Service implements PokemonGOListener {
     }
 
     private void updateCurrentApp() {
-        Log.d(MainService.class.getSimpleName(), "Updating");
-        Log.d(MainService.class.getSimpleName(), "Is GO running " + String.valueOf(isGoRunning()));
         if (isGoRunning() && !isGoOpen) {
             isGoOpen = true;
             onStart();
@@ -360,6 +369,7 @@ public class MainService extends Service implements PokemonGOListener {
             isGoOpen = false;
             onStop();
         }
+        Log.d(MainService.class.getSimpleName(), "GO is " + (isGoOpen ? "" : "not ") + "running");
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -424,9 +434,8 @@ public class MainService extends Service implements PokemonGOListener {
                     mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
                 }
                 if (!mySortedMap.isEmpty()) {
-                    Log.d(MainService.class.getSimpleName(), mySortedMap.get(mySortedMap.lastKey()).getPackageName());
                     String currentAppName = mySortedMap.get(mySortedMap.lastKey()).getPackageName();
-                    return (currentAppName.equals("com.tomer.poke.notifier") || currentAppName.equals(getPackageName())) ? isGoOpen : currentAppName.equals(Constants.GOPackageName);
+                    return (currentAppName.equals("com.android.systemui") || currentAppName.equals("com.tomer.poke.notifier") || currentAppName.equals(getPackageName())) ? isGoOpen : currentAppName.equals(Constants.GOPackageName);
                 }
             }
         } else {

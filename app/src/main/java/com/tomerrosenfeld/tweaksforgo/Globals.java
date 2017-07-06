@@ -12,6 +12,7 @@ public class Globals {
     public static int toolbarColorDark;
     public static WindowManager windowManager;
     public static LinearLayout black;
+    public static FloatingWebView floatingWebView;
     public static String url;
     public static ArrayList<String> ownedItems;
 }

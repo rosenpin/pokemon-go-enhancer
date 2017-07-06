@@ -11,6 +11,7 @@ import com.heinrichreimersoftware.androidissuereporter.IssueReporterActivity;
 import com.heinrichreimersoftware.androidissuereporter.model.github.ExtraInfo;
 import com.heinrichreimersoftware.androidissuereporter.model.github.GithubTarget;
 import com.tomerrosenfeld.tweaksforgo.Globals;
+import com.tomerrosenfeld.tweaksforgo.Prefs;
 import com.tomerrosenfeld.tweaksforgo.SecretConstants;
 
 public class ReporterActivity extends IssueReporterActivity {
@@ -41,6 +42,10 @@ public class ReporterActivity extends IssueReporterActivity {
 
     @Override
     public void onSaveExtraInfo(ExtraInfo extraInfo) {
-
+        Prefs prefs = new Prefs(this);
+        String[][] preferences = prefs.toArray();
+        for (String[] preference : preferences) {
+            extraInfo.put(preference[0], preference[1]);
+        }
     }
 }
